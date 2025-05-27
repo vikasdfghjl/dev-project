@@ -1,0 +1,72 @@
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>RSS Aggregator Pro</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        darkMode: 'class', // or 'media'
+        theme: {
+          extend: {
+            colors: {
+              primary: {
+                DEFAULT: 'hsl(210, 40%, 50%)',
+                foreground: 'hsl(210, 40%, 98%)',
+                dark: 'hsl(210, 40%, 40%)',
+              },
+              background: 'hsl(0, 0%, 100%)',
+              foreground: 'hsl(210, 40%, 9.8%)',
+              muted: {
+                DEFAULT: 'hsl(210, 40%, 96.1%)',
+                foreground: 'hsl(210, 4%, 45.1%)'
+              },
+              card: {
+                DEFAULT: 'hsl(0, 0%, 100%)',
+                foreground: 'hsl(210, 40%, 9.8%)'
+              },
+              border: 'hsl(210, 40%, 90%)',
+              accent: {
+                DEFAULT: 'hsl(210, 40%, 50%)',
+                foreground: 'hsl(0, 0%, 100%)'
+              }
+            },
+            fontFamily: {
+              sans: ['Inter', 'sans-serif'],
+            },
+          }
+        }
+      }
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+      /* Custom scrollbar hiding utility */
+      .hide-scrollbar::-webkit-scrollbar {
+        display: none; /* Safari and Chrome */
+      }
+      .hide-scrollbar {
+        -ms-overflow-style: none;  /* IE and Edge */
+        scrollbar-width: none;  /* Firefox */
+      }
+    </style>
+  <script type="importmap">
+{
+  "imports": {
+    "react-dom/": "https://esm.sh/react-dom@^19.1.0/",
+    "react/": "https://esm.sh/react@^19.1.0/",
+    "react": "https://esm.sh/react@^19.1.0"
+  }
+}
+</script>
+</head>
+  <body class="font-sans">
+    <div id="root"></div>
+    <script type="module" src="/index.tsx"></script>
+  </body>
+</html><link rel="stylesheet" href="index.css">
+<script src="index.tsx" type="module"></script>

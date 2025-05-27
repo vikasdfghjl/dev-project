@@ -1,0 +1,12 @@
+# Standard FastAPI project structure
+backend/
+├── app/
+│   ├── __init__.py
+│   ├── main.py
+│   ├── crud.py
+│   ├── models.py
+│   ├── schemas.py
+│   ├── database.py
+│   └── config.py
+├── .env
+└── requirements.txt

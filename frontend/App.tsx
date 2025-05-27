@@ -1,0 +1,226 @@
+import React, { useContext, useMemo, useState } from 'react';
+import { AppProvider, AppContext } from './AppContext'; // Import AppProvider and AppContext
+import { Header } from './components/Header';
+import { Sidebar } from './components/Sidebar';
+import { ArticleView } from './components/ArticleView';
+import { AddFeedModal } from './components/AddFeedModal';
+import { AddFolderModal } from './components/AddFolderModal';
+import { RenameFolderModal } from './components/RenameFolderModal';
+import { MoveFeedToFolderModal } from './components/MoveFeedToFolderModal';
+import type { Feed, Article, Folder, AppContextType } from './types';
+import { ALL_ARTICLES_VIEW_ID } from './constants';
+import { MainContentArea } from './components/MainContentArea';
+import { SettingsPage } from './components/SettingsPage';
+import { rssService } from './services/rssService';
+
+// This component will now consume the context
+const AppContent: React.FC = () => {
+  const context = useContext(AppContext);
+  if (!context) {
+    // This should not happen if AppContent is rendered within AppProvider
+    return <div>Loading context...</div>;
+  }
+  const { state, dispatch, addFeed, deleteFeed, addFolder, renameFolder, deleteFolder, moveFeedToFolder, selectFeed, markArticleAsReadService } = context;
+
+
+  const handleSelectArticle = (article: Article) => {
+    dispatch({ type: 'SELECT_ARTICLE', payload: article });
+    if (!article.isRead) {
+        dispatch({type: 'MARK_ARTICLE_AS_READ_OPTIMISTIC', payload: article.id});
+        markArticleAsReadService(article.id);
+    }
+  };
+
+  const sortedAndFilteredArticles = useMemo(() => {
+    let sourceArticles: Article[];
+    if (state.selectedFeedId === ALL_ARTICLES_VIEW_ID) {
+      sourceArticles = state.allArticles;
+    } else if (state.selectedFeedId && state.articlesByFeed[state.selectedFeedId]) {
+      sourceArticles = state.articlesByFeed[state.selectedFeedId];
+    } else {
+      return [];
+    }
+
+    let processedArticles = [...sourceArticles];
+    if (state.articleFilterOption === 'unread') processedArticles = processedArticles.filter(a => !a.isRead);
+    else if (state.articleFilterOption === 'read') processedArticles = processedArticles.filter(a => a.isRead);
+    
+    processedArticles.sort((a, b) => {
+      switch (state.articleSortOption) {
+        case 'date-asc': return new Date(a.pubDate).getTime() - new Date(b.pubDate).getTime();
+        case 'date-desc': return new Date(b.pubDate).getTime() - new Date(a.pubDate).getTime();
+        case 'title-asc': return a.title.localeCompare(b.title);
+        case 'title-desc': return b.title.localeCompare(a.title);
+        default: return 0;
+      }
+    });
+    return processedArticles;
+  }, [state.selectedFeedId, state.allArticles, state.articlesByFeed, state.articleSortOption, state.articleFilterOption]);
+
+  const feedsByFolder = useMemo(() => {
+    const result: { [folderId: string]: Feed[] } = {};
+    state.folders.forEach(folder => result[folder.id] = []);
+    state.feeds.forEach(feed => {
+      if (feed.folderId && result[feed.folderId]) {
+        result[feed.folderId].push(feed);
+      }
+    });
+    return result;
+  }, [state.feeds, state.folders]);
+
+  const ungroupedFeeds = useMemo(() => {
+    return state.feeds.filter(feed => !feed.folderId);
+  }, [state.feeds]);
+
+  const initialAppLoading = state.isLoadingFeeds || state.isLoadingFolders;
+
+  // Handler for instant refresh
+  const handleRefreshFeeds = async () => {
+    dispatch({ type: 'INIT_APP_START' });
+    try {
+      const [feeds, folders] = await Promise.all([
+        rssService.getFeeds(),
+        rssService.getFolders()
+      ]);
+      dispatch({ type: 'INIT_APP_SUCCESS', payload: { feeds, folders } });
+      // Optionally, reload articles for all feeds
+      if (feeds && feeds.length > 0) {
+        dispatch({ type: 'LOAD_ALL_ARTICLES_START' });
+        const articlePromises = feeds.map((feed: Feed) => rssService.getArticles(feed.id));
+        const results = await Promise.allSettled(articlePromises);
+        const successfullyFetchedArticles: Article[] = [];
+        results.forEach((result) => {
+          if (result.status === 'fulfilled' && result.value) {
+            successfullyFetchedArticles.push(...result.value as Article[]);
+          }
+        });
+        dispatch({ type: 'LOAD_ALL_ARTICLES_SUCCESS', payload: successfullyFetchedArticles });
+      }
+    } catch (err: any) {
+      dispatch({ type: 'INIT_APP_FAILURE', payload: err.message || 'Failed to refresh feeds' });
+    }
+  };
+
+  // Fix for 'never' type error
+  const selectedArticle: Article | null = state.selectedArticle;
+
+  return (
+    <div className="flex flex-col h-screen bg-muted dark:bg-slate-900 text-foreground dark:text-slate-100 antialiased">
+      <Header onAddFeedClick={() => dispatch({ type: 'OPEN_MODAL', payload: { modalName: 'addFeedOpen' }})} onRefreshFeeds={handleRefreshFeeds} />
+      <div className="flex flex-1 overflow-hidden">
+        <Sidebar
+          folders={state.folders}
+          feedsByFolder={feedsByFolder}
+          ungroupedFeeds={ungroupedFeeds}
+          selectedFeedId={state.selectedFeedId}
+          onSelectFeed={selectFeed} // Use context action
+          onDeleteFeed={deleteFeed} // Use context action
+          isLoading={initialAppLoading}
+          onAddFeedClick={() => dispatch({ type: 'OPEN_MODAL', payload: { modalName: 'addFeedOpen' }})}
+          onAddFolderClick={() => dispatch({ type: 'OPEN_MODAL', payload: { modalName: 'addFolderOpen' }})}
+          onEditFolder={(folder) => dispatch({ type: 'OPEN_MODAL', payload: { modalName: 'renameFolder', data: folder }})}
+          onDeleteFolder={deleteFolder} // Use context action
+          onMoveFeed={(feed) => dispatch({ type: 'OPEN_MODAL', payload: { modalName: 'moveFeed', data: feed }})}
+          onOpenSettingsClick={() => dispatch({ type: 'TOGGLE_SETTINGS_VIEW' })}
+          isCollapsed={state.isSidebarCollapsed} 
+          onToggleCollapse={() => dispatch({ type: 'TOGGLE_SIDEBAR' })} 
+        />
+        <main className="flex-1 flex flex-col overflow-y-auto bg-background dark:bg-slate-850">
+          {state.error && (
+            <div className="p-4 m-4 rounded-md bg-red-50 border-l-4 border-red-500 text-red-700 dark:bg-red-900/30 dark:text-red-300 dark:border-red-600 shadow">
+              <div className="flex justify-between items-start">
+                <div>
+                    <p className="font-bold">Error</p>
+                    <p>{state.error}</p>
+                </div>
+                <button 
+                    onClick={() => dispatch({ type: 'SET_ERROR', payload: null })}
+                    className="ml-4 p-1 text-red-600 hover:text-red-800 dark:text-red-300 dark:hover:text-red-100 rounded-full hover:bg-red-100 dark:hover:bg-red-700/50 focus:outline-none focus:ring-2 focus:ring-red-500"
+                    aria-label="Dismiss error"
+                >
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="w-5 h-5">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+              </div>
+            </div>
+          )}
+          
+          {state.isSettingsViewOpen ? (
+              <SettingsPage 
+                onCloseSettings={() => dispatch({ type: 'CLOSE_SETTINGS_VIEW' })}
+                feeds={state.feeds} 
+                folders={state.folders}
+                onAddFeedClick={() => { dispatch({type: 'CLOSE_SETTINGS_VIEW'}); dispatch({ type: 'OPEN_MODAL', payload: { modalName: 'addFeedOpen' }});}}
+                onDeleteFeed={deleteFeed} // Use context action
+                onMoveFeed={(feed) => dispatch({ type: 'OPEN_MODAL', payload: { modalName: 'moveFeed', data: feed }})}
+                onAddFolderClick={() => { dispatch({type: 'CLOSE_SETTINGS_VIEW'}); dispatch({ type: 'OPEN_MODAL', payload: { modalName: 'addFolderOpen' }});}}
+                onRenameFolder={(folder) => dispatch({ type: 'OPEN_MODAL', payload: { modalName: 'renameFolder', data: folder }})}
+                onDeleteFolder={deleteFolder} // Use context action
+              />
+          ) : state.selectedArticle ? (
+            <ArticleView article={state.selectedArticle} onBack={() => dispatch({ type: 'SELECT_ARTICLE', payload: null })} />
+          ) : (
+            <MainContentArea
+              initialAppLoading={initialAppLoading}
+              selectedFeedId={state.selectedFeedId}
+              isLoadingAllArticles={state.isLoadingAllArticles}
+              isLoadingSpecificFeedArticles={state.isLoadingSpecificFeedArticles}
+              allArticles={state.allArticles}
+              articlesByFeed={state.articlesByFeed}
+              feeds={state.feeds}
+              sortedAndFilteredArticles={sortedAndFilteredArticles}
+              onSelectArticle={handleSelectArticle}
+              selectedArticleId={selectedArticle ? selectedArticle.id : null}
+              articleSortOption={state.articleSortOption}
+              onSortChange={(option) => dispatch({ type: 'SET_ARTICLE_SORT_OPTION', payload: option })}
+              articleFilterOption={state.articleFilterOption}
+              onFilterChange={(option) => dispatch({ type: 'SET_ARTICLE_FILTER_OPTION', payload: option })}
+              articleViewStyle={state.articleViewStyle}
+              onArticleViewStyleChange={(style) => dispatch({ type: 'SET_ARTICLE_VIEW_STYLE', payload: style })}
+            />
+          )}
+        </main>
+      </div>
+      {state.modalState.addFeedOpen && (
+        <AddFeedModal
+          folders={state.folders}
+          onClose={() => dispatch({ type: 'CLOSE_MODAL', payload: 'addFeedOpen' })}
+          onAddFeed={addFeed} // Use context action
+        />
+      )}
+      {state.modalState.addFolderOpen && (
+        <AddFolderModal
+          onClose={() => dispatch({ type: 'CLOSE_MODAL', payload: 'addFolderOpen' })}
+          onAddFolder={addFolder} // Use context action
+        />
+      )}
+      {state.modalState.renameFolder && (
+        <RenameFolderModal
+          folder={state.modalState.renameFolder}
+          onClose={() => dispatch({ type: 'CLOSE_MODAL', payload: 'renameFolder' })}
+          onRenameFolder={renameFolder} // Use context action
+        />
+      )}
+      {state.modalState.moveFeed && (
+        <MoveFeedToFolderModal
+          feed={state.modalState.moveFeed}
+          folders={state.folders}
+          onClose={() => dispatch({ type: 'CLOSE_MODAL', payload: 'moveFeed' })}
+          onMoveFeed={moveFeedToFolder} // Use context action
+        />
+      )}
+    </div>
+  );
+};
+
+// The main App component now just sets up the provider
+const App: React.FC = () => {
+  return (
+    <AppProvider>
+      <AppContent />
+    </AppProvider>
+  );
+};
+
+export default App;

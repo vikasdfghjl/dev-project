@@ -1,0 +1,217 @@
+import React, { createContext, useReducer, useEffect, useCallback, ReactNode, useRef } from 'react';
+import type { AppState, AppAction, AppContextType, Feed, Folder, Article } from './types';
+import { appReducer, initialState } from './AppReducer';
+import { rssService } from './services/rssService';
+import { ALL_ARTICLES_VIEW_ID } from './constants';
+
+export const AppContext = createContext<AppContextType | undefined>(undefined);
+
+interface AppProviderProps {
+  children: ReactNode;
+}
+
+export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
+  const [state, dispatch] = useReducer(appReducer, initialState);
+  // Correct useRef initialization
+  const refreshIntervalRef = useRef<number>(parseInt(localStorage.getItem('refreshIntervalMinutes') || '15', 10));
+
+  // Watch for refresh interval changes in localStorage
+  useEffect(() => {
+    const handleStorage = () => {
+      const stored = localStorage.getItem('refreshIntervalMinutes');
+      if (stored) {
+        refreshIntervalRef.current = parseInt(stored, 10);
+      }
+    };
+    window.addEventListener('storage', handleStorage);
+    return () => window.removeEventListener('storage', handleStorage);
+  }, []);
+
+  // Background refresh timer using the selected interval
+  useEffect(() => {
+    let timer: NodeJS.Timeout;
+    const doRefresh = () => {
+      dispatch({ type: 'INIT_APP_START' });
+      Promise.all([rssService.getFeeds(), rssService.getFolders()])
+        .then(([feeds, folders]) => {
+          dispatch({ type: 'INIT_APP_SUCCESS', payload: { feeds, folders } });
+        })
+        .catch(err => dispatch({ type: 'INIT_APP_FAILURE', payload: err.message || 'Failed to refresh feeds' }));
+    };
+    doRefresh(); // Initial refresh
+    timer = setInterval(() => {
+      // Always get the latest interval from localStorage
+      const stored = localStorage.getItem('refreshIntervalMinutes');
+      const interval = stored ? parseInt(stored, 10) : 15;
+      refreshIntervalRef.current = interval;
+      doRefresh();
+    }, refreshIntervalRef.current * 60 * 1000);
+    return () => clearInterval(timer);
+  }, []);
+
+  // Initial data loading
+  useEffect(() => {
+    dispatch({ type: 'INIT_APP_START' });
+    Promise.all([rssService.getFeeds(), rssService.getFolders()])
+      .then(([feeds, folders]) => {
+        dispatch({ type: 'INIT_APP_SUCCESS', payload: { feeds, folders } });
+        // Trigger loading all articles if "All Articles" is default
+        if (initialState.selectedFeedId === ALL_ARTICLES_VIEW_ID && feeds.length > 0) {
+            dispatch({ type: 'LOAD_ALL_ARTICLES_START' });
+            const articlePromises = feeds.map(feed => rssService.getArticles(feed.id));
+            Promise.allSettled(articlePromises)
+                .then(results => {
+                    const successfullyFetchedArticles: Article[] = [];
+                    results.forEach(result => {
+                        if (result.status === 'fulfilled' && result.value) {
+                            successfullyFetchedArticles.push(...result.value);
+                        } else if (result.status === 'rejected') {
+                            console.warn(`Failed to load articles for a feed during initial "All Articles" fetch:`, result.reason);
+                        }
+                    });
+                    dispatch({ type: 'LOAD_ALL_ARTICLES_SUCCESS', payload: successfullyFetchedArticles });
+                })
+                .catch(err => dispatch({ type: 'LOAD_ALL_ARTICLES_FAILURE', payload: err.message || 'Failed to load all articles initially' }));
+        }
+      })
+      .catch(err => dispatch({ type: 'INIT_APP_FAILURE', payload: err.message || 'Failed to initialize app' }));
+  }, []);
+
+
+  // Effect to load all articles when feeds change and "All Articles" view is selected
+  useEffect(() => {
+    if (state.selectedFeedId === ALL_ARTICLES_VIEW_ID && state.feeds.length > 0 && !state.isLoadingFeeds) { // !state.isLoadingFeeds ensures feeds are loaded
+      dispatch({ type: 'LOAD_ALL_ARTICLES_START' });
+      const articlePromises = state.feeds.map(feed => rssService.getArticles(feed.id));
+      Promise.allSettled(articlePromises)
+        .then(results => {
+            const successfullyFetchedArticles: Article[] = [];
+            results.forEach(result => {
+                if (result.status === 'fulfilled' && result.value) {
+                    successfullyFetchedArticles.push(...result.value);
+                } else if (result.status === 'rejected') {
+                    console.warn(`Failed to load articles for a feed during "All Articles" fetch:`, result.reason);
+                }
+            });
+            dispatch({ type: 'LOAD_ALL_ARTICLES_SUCCESS', payload: successfullyFetchedArticles });
+        })
+        .catch(err => dispatch({ type: 'LOAD_ALL_ARTICLES_FAILURE', payload: err.message || 'Failed to load all articles' }));
+    } else if (state.selectedFeedId === ALL_ARTICLES_VIEW_ID && state.feeds.length === 0) {
+        dispatch({ type: 'LOAD_ALL_ARTICLES_SUCCESS', payload: [] }); // Clear if no feeds
+    }
+  }, [state.feeds, state.selectedFeedId, state.isLoadingFeeds]);
+
+
+  // Async action creators
+  const addFeed = useCallback(async (url: string, feedName: string, folderId?: string | null) => {
+    dispatch({ type: 'ADD_FEED_START' });
+    try {
+      const newFeed = await rssService.addFeed(url, feedName, folderId ?? null);
+      dispatch({ type: 'ADD_FEED_SUCCESS', payload: newFeed });
+    } catch (err: any) {
+      dispatch({ type: 'ADD_FEED_FAILURE', payload: err.message || 'Failed to add feed' });
+      throw err; // Re-throw for modal error handling
+    }
+  }, []);
+
+  const deleteFeed = useCallback(async (feedId: string) => {
+    dispatch({ type: 'DELETE_FEED_START' });
+    try {
+      await rssService.deleteFeed(feedId);
+      dispatch({ type: 'DELETE_FEED_SUCCESS', payload: feedId });
+    } catch (err: any) {
+      dispatch({ type: 'DELETE_FEED_FAILURE', payload: err.message || 'Failed to delete feed' });
+    }
+  }, []);
+  
+  const addFolder = useCallback(async (name: string) => {
+    dispatch({ type: 'ADD_FOLDER_START' });
+    try {
+      const newFolder = await rssService.addFolder(name);
+      dispatch({ type: 'ADD_FOLDER_SUCCESS', payload: newFolder });
+    } catch (err: any) {
+      dispatch({ type: 'ADD_FOLDER_FAILURE', payload: err.message || 'Failed to add folder' });
+      throw err;
+    }
+  }, []);
+
+  const renameFolder = useCallback(async (folderId: string, newName: string) => {
+    dispatch({ type: 'RENAME_FOLDER_START' });
+    try {
+      const updatedFolder = await rssService.updateFolder(folderId, newName);
+      dispatch({ type: 'RENAME_FOLDER_SUCCESS', payload: updatedFolder });
+    } catch (err: any) {
+      dispatch({ type: 'RENAME_FOLDER_FAILURE', payload: err.message || 'Failed to rename folder' });
+      throw err;
+    }
+  }, []);
+  
+  const deleteFolder = useCallback(async (folderId: string) => {
+    dispatch({ type: 'DELETE_FOLDER_START' });
+    try {
+      await rssService.deleteFolder(folderId);
+      dispatch({ type: 'DELETE_FOLDER_SUCCESS', payload: folderId });
+    } catch (err: any) {
+      dispatch({ type: 'DELETE_FOLDER_FAILURE', payload: err.message || 'Failed to delete folder' });
+    }
+  }, []);
+
+  const moveFeedToFolder = useCallback(async (feedId: string, targetFolderId: string | null) => {
+    dispatch({ type: 'MOVE_FEED_START' });
+    try {
+      const updatedFeed = await rssService.moveFeedToFolder(feedId, targetFolderId);
+      dispatch({ type: 'MOVE_FEED_SUCCESS', payload: updatedFeed });
+    } catch (err: any) {
+      dispatch({ type: 'MOVE_FEED_FAILURE', payload: err.message || 'Failed to move feed' });
+      throw err;
+    }
+  }, []);
+
+  const selectFeed = useCallback(async (feedId: string | null) => {
+    dispatch({ type: 'SELECT_FEED', payload: feedId });
+    if (feedId && feedId !== ALL_ARTICLES_VIEW_ID) {
+      // Load specific articles if not already loaded and not currently loading
+      if (!state.articlesByFeed[feedId] && !state.isLoadingSpecificFeedArticles) {
+        dispatch({ type: 'LOAD_SPECIFIC_ARTICLES_START', payload: feedId });
+        try {
+          const articles = await rssService.getArticles(feedId);
+          dispatch({ type: 'LOAD_SPECIFIC_ARTICLES_SUCCESS', payload: { feedId, articles } });
+        } catch (err: any) {
+          dispatch({ type: 'LOAD_SPECIFIC_ARTICLES_FAILURE', payload: { feedId, error: err.message || 'Failed to load articles' } });
+        }
+      }
+    }
+    // Loading for ALL_ARTICLES_VIEW_ID is handled by the separate useEffect
+  }, [state.articlesByFeed, state.isLoadingSpecificFeedArticles]);
+
+  const markArticleAsReadService = useCallback(async (articleId: string) => {
+    // Optimistic update is handled in reducer
+    // Here we just call the service
+    try {
+        await rssService.markArticleAsRead(articleId);
+    } catch (err) {
+        console.warn("Failed to mark article as read on backend", err);
+        // Potentially dispatch an action to revert optimistic update or show error
+    }
+  }, []);
+
+
+  const contextValue: AppContextType = {
+    state,
+    dispatch,
+    addFeed, // (url, feedName, folderId)
+    deleteFeed,
+    addFolder,
+    renameFolder,
+    deleteFolder,
+    moveFeedToFolder,
+    selectFeed,
+    markArticleAsReadService,
+  };
+
+  return (
+    <AppContext.Provider value={contextValue}>
+      {children}
+    </AppContext.Provider>
+  );
+};

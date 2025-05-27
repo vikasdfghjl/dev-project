@@ -1,0 +1,45 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.env
+.env
+.venv
+venv/
+build/
+dist/
+*.egg-info/
+
+# VSCode
+.vscode/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Backend
+backend/uv.lock
+backend/.env
+backend/.venv/
+backend/__pycache__/
+backend/app/__pycache__/
+backend/app/api/__pycache__/
+backend/app/api/v1/__pycache__/
+backend/app/core/__pycache__/
+backend/app/db/__pycache__/
+backend/app/schemas/__pycache__/
+backend/app/services/__pycache__/
+backend/app/tests/__pycache__/
+
+# Frontend
+frontend/node_modules/
+frontend/dist/
+frontend/.env
+
+# Logs
+*.log
+
+# Misc
+*.sqlite3
+*.db

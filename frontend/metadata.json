@@ -1,0 +1,5 @@
+{
+  "name": "RSS Aggregator Pro",
+  "description": "A sleek and modern RSS feed aggregator to keep you updated with your favorite content. Built with React, TypeScript, and Tailwind CSS for an excellent user experience.",
+  "requestFramePermissions": []
+}
