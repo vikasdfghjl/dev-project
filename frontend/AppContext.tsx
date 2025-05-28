@@ -1,4 +1,4 @@
-import React, { createContext, useReducer, useEffect, useCallback, ReactNode } from 'react';
+import React, { createContext, useReducer, useEffect, useCallback, useRef, ReactNode } from 'react';
 import type { AppContextType, Article } from './types';
 import { appReducer, initialState } from './AppReducer';
 import { rssService } from './services';
@@ -17,10 +17,21 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
   // Use the custom hook for localStorage management
   const [refreshIntervalMinutes] = useLocalStorage('refreshIntervalMinutes', 15);
 
+  // Track last API operation to avoid conflicting refreshes
+  const lastApiOperationRef = useRef<number>(0);
+
   // Background refresh timer using the selected interval
   useEffect(() => {
     let timer: NodeJS.Timeout;
     const doRefresh = () => {
+      // Don't refresh if there was a recent API operation (within last 10 seconds)
+      const timeSinceLastOperation = Date.now() - lastApiOperationRef.current;
+      if (timeSinceLastOperation < 10000) {
+        console.log('⏸️ Skipping background refresh due to recent API operation');
+        return;
+      }
+      
+      console.log('🔄 Background refresh triggered');
       dispatch({ type: 'INIT_APP_START' });
       Promise.all([rssService.getFeeds(), rssService.getFolders()])
         .then(([feeds, folders]) => {
@@ -35,9 +46,12 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
 
   // Initial data loading
   useEffect(() => {
+    console.log('🚀 Initial app loading started');
     dispatch({ type: 'INIT_APP_START' });
     Promise.all([rssService.getFeeds(), rssService.getFolders()])
       .then(([feeds, folders]) => {
+        console.log('📊 Initial feeds loaded:', feeds);
+        console.log('📊 Initial folders loaded:', folders);
         dispatch({ type: 'INIT_APP_SUCCESS', payload: { feeds, folders } });
         // Trigger loading all articles if "All Articles" is default
         if (initialState.selectedFeedId === ALL_ARTICLES_VIEW_ID && feeds.length > 0) {
@@ -58,7 +72,10 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
                 .catch(err => dispatch({ type: 'LOAD_ALL_ARTICLES_FAILURE', payload: err.message || 'Failed to load all articles initially' }));
         }
       })
-      .catch(err => dispatch({ type: 'INIT_APP_FAILURE', payload: err.message || 'Failed to initialize app' }));
+      .catch(err => {
+        console.error('❌ Initial app loading failed:', err);
+        dispatch({ type: 'INIT_APP_FAILURE', payload: err.message || 'Failed to initialize app' });
+      });
   }, []);
 
 
@@ -88,6 +105,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
 
   // Async action creators
   const addFeed = useCallback(async (url: string, feedName: string, folderId?: string | null) => {
+    lastApiOperationRef.current = Date.now();
     dispatch({ type: 'ADD_FEED_START' });
     try {
       const newFeed = await rssService.addFeed(url, feedName, folderId ?? null);
@@ -99,6 +117,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
   }, []);
 
   const deleteFeed = useCallback(async (feedId: string) => {
+    lastApiOperationRef.current = Date.now();
     dispatch({ type: 'DELETE_FEED_START' });
     try {
       await rssService.deleteFeed(feedId);
@@ -109,6 +128,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
   }, []);
   
   const addFolder = useCallback(async (name: string) => {
+    lastApiOperationRef.current = Date.now();
     dispatch({ type: 'ADD_FOLDER_START' });
     try {
       const newFolder = await rssService.addFolder(name);
@@ -120,6 +140,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
   }, []);
 
   const renameFolder = useCallback(async (folderId: string, newName: string) => {
+    lastApiOperationRef.current = Date.now();
     dispatch({ type: 'RENAME_FOLDER_START' });
     try {
       const updatedFolder = await rssService.renameFolder(folderId, newName);
@@ -131,6 +152,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
   }, []);
   
   const deleteFolder = useCallback(async (folderId: string) => {
+    lastApiOperationRef.current = Date.now();
     dispatch({ type: 'DELETE_FOLDER_START' });
     try {
       await rssService.deleteFolder(folderId);
@@ -141,11 +163,16 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
   }, []);
 
   const moveFeedToFolder = useCallback(async (feedId: string, targetFolderId: string | null) => {
+    console.log('🔄 MoveFeedToFolder called:', { feedId, targetFolderId });
+    lastApiOperationRef.current = Date.now();
     dispatch({ type: 'MOVE_FEED_START' });
     try {
       const updatedFeed = await rssService.moveFeedToFolder(feedId, targetFolderId);
+      console.log('✅ Move feed API response:', updatedFeed);
       dispatch({ type: 'MOVE_FEED_SUCCESS', payload: updatedFeed });
+      console.log('✅ Dispatched MOVE_FEED_SUCCESS');
     } catch (err: any) {
+      console.error('❌ Move feed failed:', err);
       dispatch({ type: 'MOVE_FEED_FAILURE', payload: err.message || 'Failed to move feed' });
       throw err;
     }

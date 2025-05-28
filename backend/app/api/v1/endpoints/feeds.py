@@ -54,7 +54,7 @@ async def parse_feed_title(request: Request):
     except Exception as e:
         raise HTTPException(status_code=400, detail=f"Could not fetch feed title: {e}")
 
-@router.put("/{feed_id}/move", response_model=feed_schemas.Feed)
+@router.patch("/{feed_id}/move", response_model=feed_schemas.Feed)
 def move_feed_to_folder(feed_id: int, data: dict = Body(...), db: Session = Depends(database.get_db)):
     target_folder_id = data.get("target_folder_id")
     feed = db.query(models.Feed).filter_by(id=feed_id).first()

@@ -178,9 +178,13 @@ export const appReducer = (state: AppState, action: AppAction): AppState => {
     case 'MOVE_FEED_START':
       return { ...state, error: null };
     case 'MOVE_FEED_SUCCESS':
+      console.log('🔄 MOVE_FEED_SUCCESS reducer called with:', action.payload);
+      console.log('📊 Current feeds before update:', state.feeds);
+      const updatedFeeds = state.feeds.map(f => f.id === action.payload.id ? action.payload : f);
+      console.log('📊 Updated feeds after update:', updatedFeeds);
       return {
         ...state,
-        feeds: state.feeds.map(f => f.id === action.payload.id ? action.payload : f),
+        feeds: updatedFeeds,
         modalState: { ...state.modalState, moveFeed: null },
       };
     case 'MOVE_FEED_FAILURE':

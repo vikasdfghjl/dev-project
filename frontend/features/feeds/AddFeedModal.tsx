@@ -25,7 +25,7 @@ const AddFeedModalComponent: React.FC<AddFeedModalProps> = ({ onClose, onAddFeed
     setIsFetchingName(true);
     setError(null);
     try {
-      const title = await rssApiService.parseFeedTitle(url);
+      const title = await rssApiService.fetchFeedTitle(url);
       setFeedName(title || '');
     } catch (err) {
       setFeedName('');
