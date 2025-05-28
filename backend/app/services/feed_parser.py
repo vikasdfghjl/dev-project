@@ -7,8 +7,27 @@ import time
 import re
 from fastapi import BackgroundTasks
 from urllib.parse import urljoin, urlparse
+from datetime import datetime
+from email.utils import parsedate_to_datetime
 
 # Placeholder for feed parser service
+
+def standardize_date(date_str: str) -> str:
+    """Convert various date formats to ISO format"""
+    try:
+        # Try parsing with email.utils (handles RFC822 format)
+        dt = parsedate_to_datetime(date_str)
+        return dt.isoformat()
+    except:
+        try:
+            # Try parsing with feedparser's date handling
+            dt = feedparser._parse_date(date_str)
+            if dt:
+                return dt.isoformat()
+        except:
+            pass
+    # If all parsing fails, return current time
+    return datetime.now().isoformat()
 
 def extract_image_url(entry, base_url=None):
     """Extract image URL from RSS entry using multiple methods"""
@@ -41,10 +60,13 @@ def extract_image_url(entry, base_url=None):
     
     for content in content_to_search:
         if content:
-            # Look for img tags
-            img_match = re.search(r'<img[^>]+src=["\'](.*?)["\'][^>]*>', content, re.IGNORECASE)
-            if img_match:
-                img_url = img_match.group(1)
+            # Look for img tags with more flexible matching
+            img_matches = re.finditer(r'<img[^>]+src=["\'](.*?)["\'][^>]*>', content, re.IGNORECASE)
+            for match in img_matches:
+                img_url = match.group(1)
+                # Skip data URLs and small icons
+                if img_url.startswith('data:') or 'icon' in img_url.lower():
+                    continue
                 # Convert relative URLs to absolute if base_url is provided
                 if base_url and not img_url.startswith(('http://', 'https://')):
                     img_url = urljoin(base_url, img_url)
@@ -56,6 +78,31 @@ def extract_image_url(entry, base_url=None):
             return entry.image['href']
         elif isinstance(entry.image, str):
             return entry.image
+    
+    # Method 5: Check for itunes:image
+    if hasattr(entry, 'itunes_image') and entry.itunes_image:
+        if isinstance(entry.itunes_image, dict) and 'href' in entry.itunes_image:
+            return entry.itunes_image['href']
+    
+    # Method 6: Check for og:image meta tag in content
+    for content in content_to_search:
+        if content:
+            og_match = re.search(r'<meta[^>]+property=["\']og:image["\'][^>]+content=["\'](.*?)["\'][^>]*>', content, re.IGNORECASE)
+            if og_match:
+                img_url = og_match.group(1)
+                if base_url and not img_url.startswith(('http://', 'https://')):
+                    img_url = urljoin(base_url, img_url)
+                return img_url
+    
+    # Method 7: Check for twitter:image meta tag in content
+    for content in content_to_search:
+        if content:
+            twitter_match = re.search(r'<meta[^>]+name=["\']twitter:image["\'][^>]+content=["\'](.*?)["\'][^>]*>', content, re.IGNORECASE)
+            if twitter_match:
+                img_url = twitter_match.group(1)
+                if base_url and not img_url.startswith(('http://', 'https://')):
+                    img_url = urljoin(base_url, img_url)
+                return img_url
     
     return None
 
@@ -87,11 +134,26 @@ def fetch_and_save_articles_for_feed(feed: models.Feed, db: Session):
         # Extract image URL
         image_url = extract_image_url(entry, base_url)
         
+        # Get and standardize the publication date
+        pub_date = entry.get("published", "")
+        if not pub_date and hasattr(entry, 'updated'):
+            pub_date = entry.updated
+        standardized_date = standardize_date(pub_date)
+        
+        # Get content from the most appropriate field
+        content = None
+        if hasattr(entry, 'content') and entry.content:
+            content = entry.content[0].value
+        elif hasattr(entry, 'summary'):
+            content = entry.summary
+        elif hasattr(entry, 'description'):
+            content = entry.description
+        
         article = ArticleCreate(
             title=entry.get("title", "No title"),
-            content=entry.get("summary", ""),
+            content=content or "",
             link=link,
-            pub_date=entry.get("published", ""),
+            pub_date=standardized_date,
             image_url=image_url,
             feed_id=feed.id
         )

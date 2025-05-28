@@ -1,17 +1,15 @@
-import React, { useContext, useMemo, useState } from 'react';
+import React, { useContext, useMemo } from 'react';
 import { AppProvider, AppContext } from './AppContext'; // Import AppProvider and AppContext
-import { Header } from './components/Header';
-import { Sidebar } from './components/Sidebar';
-import { ArticleView } from './components/ArticleView';
-import { AddFeedModal } from './components/AddFeedModal';
-import { AddFolderModal } from './components/AddFolderModal';
-import { RenameFolderModal } from './components/RenameFolderModal';
-import { MoveFeedToFolderModal } from './components/MoveFeedToFolderModal';
-import type { Feed, Article, Folder, AppContextType } from './types';
+import { useArticleFiltering } from './hooks';
+import { ErrorBoundary, AsyncErrorBoundary } from './features/shared/ui';
+import { Header, Sidebar, MainContentArea } from './features/layout';
+import { ArticleView } from './features/articles/ArticleView';
+import { AddFeedModal, MoveFeedToFolderModal } from './features/feeds';
+import { AddFolderModal, RenameFolderModal } from './features/folders';
+import { SettingsPage } from './features/settings';
+import type { Feed, Article } from './types';
 import { ALL_ARTICLES_VIEW_ID } from './constants';
-import { MainContentArea } from './components/MainContentArea';
-import { SettingsPage } from './components/SettingsPage';
-import { rssService } from './services/rssService';
+import { rssService } from './services';
 
 // This component will now consume the context
 const AppContent: React.FC = () => {
@@ -31,31 +29,36 @@ const AppContent: React.FC = () => {
     }
   };
 
-  const sortedAndFilteredArticles = useMemo(() => {
-    let sourceArticles: Article[];
+  // Get source articles based on selected feed
+  const sourceArticles = useMemo(() => {
     if (state.selectedFeedId === ALL_ARTICLES_VIEW_ID) {
-      sourceArticles = state.allArticles;
+      return state.allArticles;
     } else if (state.selectedFeedId && state.articlesByFeed[state.selectedFeedId]) {
-      sourceArticles = state.articlesByFeed[state.selectedFeedId];
+      return state.articlesByFeed[state.selectedFeedId];
     } else {
       return [];
     }
+  }, [state.selectedFeedId, state.allArticles, state.articlesByFeed]);
 
-    let processedArticles = [...sourceArticles];
-    if (state.articleFilterOption === 'unread') processedArticles = processedArticles.filter(a => !a.isRead);
-    else if (state.articleFilterOption === 'read') processedArticles = processedArticles.filter(a => a.isRead);
-    
-    processedArticles.sort((a, b) => {
-      switch (state.articleSortOption) {
-        case 'date-asc': return new Date(a.pubDate).getTime() - new Date(b.pubDate).getTime();
-        case 'date-desc': return new Date(b.pubDate).getTime() - new Date(a.pubDate).getTime();
-        case 'title-asc': return a.title.localeCompare(b.title);
-        case 'title-desc': return b.title.localeCompare(a.title);
-        default: return 0;
-      }
-    });
-    return processedArticles;
-  }, [state.selectedFeedId, state.allArticles, state.articlesByFeed, state.articleSortOption, state.articleFilterOption]);
+  // Use the custom hook for filtering and sorting
+  const {
+    filteredAndSortedArticles: sortedAndFilteredArticles,
+    setSortOption,
+    setFilterOption
+  } = useArticleFiltering({
+    articles: sourceArticles,
+    initialSortOption: state.articleSortOption,
+    initialFilterOption: state.articleFilterOption
+  });
+
+  // Sync hook state with app state changes
+  React.useEffect(() => {
+    setSortOption(state.articleSortOption);
+  }, [state.articleSortOption, setSortOption]);
+
+  React.useEffect(() => {
+    setFilterOption(state.articleFilterOption);
+  }, [state.articleFilterOption, setFilterOption]);
 
   const feedsByFolder = useMemo(() => {
     const result: { [folderId: string]: Feed[] } = {};
@@ -106,25 +109,29 @@ const AppContent: React.FC = () => {
 
   return (
     <div className="flex flex-col h-screen bg-muted dark:bg-slate-900 text-foreground dark:text-slate-100 antialiased">
-      <Header onAddFeedClick={() => dispatch({ type: 'OPEN_MODAL', payload: { modalName: 'addFeedOpen' }})} onRefreshFeeds={handleRefreshFeeds} />
+      <ErrorBoundary>
+        <Header onAddFeedClick={() => dispatch({ type: 'OPEN_MODAL', payload: { modalName: 'addFeedOpen' }})} onRefreshFeeds={handleRefreshFeeds} />
+      </ErrorBoundary>
       <div className="flex flex-1 overflow-hidden">
-        <Sidebar
-          folders={state.folders}
-          feedsByFolder={feedsByFolder}
-          ungroupedFeeds={ungroupedFeeds}
-          selectedFeedId={state.selectedFeedId}
-          onSelectFeed={selectFeed} // Use context action
-          onDeleteFeed={deleteFeed} // Use context action
-          isLoading={initialAppLoading}
-          onAddFeedClick={() => dispatch({ type: 'OPEN_MODAL', payload: { modalName: 'addFeedOpen' }})}
-          onAddFolderClick={() => dispatch({ type: 'OPEN_MODAL', payload: { modalName: 'addFolderOpen' }})}
-          onEditFolder={(folder) => dispatch({ type: 'OPEN_MODAL', payload: { modalName: 'renameFolder', data: folder }})}
-          onDeleteFolder={deleteFolder} // Use context action
-          onMoveFeed={(feed) => dispatch({ type: 'OPEN_MODAL', payload: { modalName: 'moveFeed', data: feed }})}
-          onOpenSettingsClick={() => dispatch({ type: 'TOGGLE_SETTINGS_VIEW' })}
-          isCollapsed={state.isSidebarCollapsed} 
-          onToggleCollapse={() => dispatch({ type: 'TOGGLE_SIDEBAR' })} 
-        />
+        <ErrorBoundary>
+          <Sidebar
+            folders={state.folders}
+            feedsByFolder={feedsByFolder}
+            ungroupedFeeds={ungroupedFeeds}
+            selectedFeedId={state.selectedFeedId}
+            onSelectFeed={selectFeed} // Use context action
+            onDeleteFeed={deleteFeed} // Use context action
+            isLoading={initialAppLoading}
+            onAddFeedClick={() => dispatch({ type: 'OPEN_MODAL', payload: { modalName: 'addFeedOpen' }})}
+            onAddFolderClick={() => dispatch({ type: 'OPEN_MODAL', payload: { modalName: 'addFolderOpen' }})}
+            onEditFolder={(folder) => dispatch({ type: 'OPEN_MODAL', payload: { modalName: 'renameFolder', data: folder }})}
+            onDeleteFolder={deleteFolder} // Use context action
+            onMoveFeed={(feed) => dispatch({ type: 'OPEN_MODAL', payload: { modalName: 'moveFeed', data: feed }})}
+            onOpenSettingsClick={() => dispatch({ type: 'TOGGLE_SETTINGS_VIEW' })}
+            isCollapsed={state.isSidebarCollapsed} 
+            onToggleCollapse={() => dispatch({ type: 'TOGGLE_SIDEBAR' })} 
+          />
+        </ErrorBoundary>
         <main className="flex-1 flex flex-col overflow-y-auto bg-background dark:bg-slate-850">
           {state.error && (
             <div className="p-4 m-4 rounded-md bg-red-50 border-l-4 border-red-500 text-red-700 dark:bg-red-900/30 dark:text-red-300 dark:border-red-600 shadow">
@@ -147,6 +154,7 @@ const AppContent: React.FC = () => {
           )}
           
           {state.isSettingsViewOpen ? (
+            <ErrorBoundary>
               <SettingsPage 
                 onCloseSettings={() => dispatch({ type: 'CLOSE_SETTINGS_VIEW' })}
                 feeds={state.feeds} 
@@ -158,27 +166,32 @@ const AppContent: React.FC = () => {
                 onRenameFolder={(folder) => dispatch({ type: 'OPEN_MODAL', payload: { modalName: 'renameFolder', data: folder }})}
                 onDeleteFolder={deleteFolder} // Use context action
               />
+            </ErrorBoundary>
           ) : state.selectedArticle ? (
-            <ArticleView article={state.selectedArticle} onBack={() => dispatch({ type: 'SELECT_ARTICLE', payload: null })} />
+            <ErrorBoundary>
+              <ArticleView article={state.selectedArticle} onBack={() => dispatch({ type: 'SELECT_ARTICLE', payload: null })} />
+            </ErrorBoundary>
           ) : (
-            <MainContentArea
-              initialAppLoading={initialAppLoading}
-              selectedFeedId={state.selectedFeedId}
-              isLoadingAllArticles={state.isLoadingAllArticles}
-              isLoadingSpecificFeedArticles={state.isLoadingSpecificFeedArticles}
-              allArticles={state.allArticles}
-              articlesByFeed={state.articlesByFeed}
-              feeds={state.feeds}
-              sortedAndFilteredArticles={sortedAndFilteredArticles}
-              onSelectArticle={handleSelectArticle}
-              selectedArticleId={selectedArticle ? selectedArticle.id : null}
-              articleSortOption={state.articleSortOption}
-              onSortChange={(option) => dispatch({ type: 'SET_ARTICLE_SORT_OPTION', payload: option })}
-              articleFilterOption={state.articleFilterOption}
-              onFilterChange={(option) => dispatch({ type: 'SET_ARTICLE_FILTER_OPTION', payload: option })}
-              articleViewStyle={state.articleViewStyle}
-              onArticleViewStyleChange={(style) => dispatch({ type: 'SET_ARTICLE_VIEW_STYLE', payload: style })}
-            />
+            <AsyncErrorBoundary onRetry={handleRefreshFeeds}>
+              <MainContentArea
+                initialAppLoading={initialAppLoading}
+                selectedFeedId={state.selectedFeedId}
+                isLoadingAllArticles={state.isLoadingAllArticles}
+                isLoadingSpecificFeedArticles={state.isLoadingSpecificFeedArticles}
+                allArticles={state.allArticles}
+                articlesByFeed={state.articlesByFeed}
+                feeds={state.feeds}
+                sortedAndFilteredArticles={sortedAndFilteredArticles}
+                onSelectArticle={handleSelectArticle}
+                selectedArticleId={selectedArticle ? selectedArticle.id : null}
+                articleSortOption={state.articleSortOption}
+                onSortChange={(option) => dispatch({ type: 'SET_ARTICLE_SORT_OPTION', payload: option })}
+                articleFilterOption={state.articleFilterOption}
+                onFilterChange={(option) => dispatch({ type: 'SET_ARTICLE_FILTER_OPTION', payload: option })}
+                articleViewStyle={state.articleViewStyle}
+                onArticleViewStyleChange={(style) => dispatch({ type: 'SET_ARTICLE_VIEW_STYLE', payload: style })}
+              />
+            </AsyncErrorBoundary>
           )}
         </main>
       </div>

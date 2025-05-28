@@ -133,7 +133,7 @@ export const rssService = {
 
   moveFeedToFolder: async (feedId: string, folderId: string | null): Promise<Feed> => {
     const res = await fetch(`${API_BASE}/feeds/${feedId}/move`, {
-      method: 'PUT',
+      method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ target_folder_id: folderId })
     });

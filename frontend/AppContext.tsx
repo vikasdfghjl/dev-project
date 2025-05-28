@@ -1,7 +1,8 @@
-import React, { createContext, useReducer, useEffect, useCallback, ReactNode, useRef } from 'react';
-import type { AppState, AppAction, AppContextType, Feed, Folder, Article } from './types';
+import React, { createContext, useReducer, useEffect, useCallback, ReactNode } from 'react';
+import type { AppContextType, Article } from './types';
 import { appReducer, initialState } from './AppReducer';
-import { rssService } from './services/rssService';
+import { rssService } from './services';
+import { useLocalStorage } from './hooks';
 import { ALL_ARTICLES_VIEW_ID } from './constants';
 
 export const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -12,20 +13,9 @@ interface AppProviderProps {
 
 export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
   const [state, dispatch] = useReducer(appReducer, initialState);
-  // Correct useRef initialization
-  const refreshIntervalRef = useRef<number>(parseInt(localStorage.getItem('refreshIntervalMinutes') || '15', 10));
-
-  // Watch for refresh interval changes in localStorage
-  useEffect(() => {
-    const handleStorage = () => {
-      const stored = localStorage.getItem('refreshIntervalMinutes');
-      if (stored) {
-        refreshIntervalRef.current = parseInt(stored, 10);
-      }
-    };
-    window.addEventListener('storage', handleStorage);
-    return () => window.removeEventListener('storage', handleStorage);
-  }, []);
+  
+  // Use the custom hook for localStorage management
+  const [refreshIntervalMinutes] = useLocalStorage('refreshIntervalMinutes', 15);
 
   // Background refresh timer using the selected interval
   useEffect(() => {
@@ -39,15 +29,9 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
         .catch(err => dispatch({ type: 'INIT_APP_FAILURE', payload: err.message || 'Failed to refresh feeds' }));
     };
     doRefresh(); // Initial refresh
-    timer = setInterval(() => {
-      // Always get the latest interval from localStorage
-      const stored = localStorage.getItem('refreshIntervalMinutes');
-      const interval = stored ? parseInt(stored, 10) : 15;
-      refreshIntervalRef.current = interval;
-      doRefresh();
-    }, refreshIntervalRef.current * 60 * 1000);
+    timer = setInterval(doRefresh, refreshIntervalMinutes * 60 * 1000);
     return () => clearInterval(timer);
-  }, []);
+  }, [refreshIntervalMinutes]); // Re-run when interval changes
 
   // Initial data loading
   useEffect(() => {
@@ -138,7 +122,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
   const renameFolder = useCallback(async (folderId: string, newName: string) => {
     dispatch({ type: 'RENAME_FOLDER_START' });
     try {
-      const updatedFolder = await rssService.updateFolder(folderId, newName);
+      const updatedFolder = await rssService.renameFolder(folderId, newName);
       dispatch({ type: 'RENAME_FOLDER_SUCCESS', payload: updatedFolder });
     } catch (err: any) {
       dispatch({ type: 'RENAME_FOLDER_FAILURE', payload: err.message || 'Failed to rename folder' });
