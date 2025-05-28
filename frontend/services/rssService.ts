@@ -11,7 +11,13 @@ export const rssService = {
   getFeeds: async (): Promise<Feed[]> => {
     const res = await fetch(`${API_BASE}/feeds/`);
     if (!res.ok) throw new Error('Failed to fetch feeds');
-    return res.json();
+    const data = await res.json();
+    // Convert backend integer IDs to strings for frontend compatibility
+    return data.map((feed: any) => ({
+      ...feed,
+      id: String(feed.id),
+      folderId: feed.folder_id ? String(feed.folder_id) : null
+    }));
   },
 
   /**
@@ -31,7 +37,13 @@ export const rssService = {
       body: JSON.stringify({ url, title: feedName, folder_id: folderId })
     });
     if (!res.ok) throw new Error('Failed to add feed');
-    return res.json();
+    const data = await res.json();
+    // Convert backend integer IDs to strings for frontend compatibility
+    return {
+      ...data,
+      id: String(data.id),
+      folderId: data.folder_id ? String(data.folder_id) : null
+    };
   },
 
   /**
@@ -126,7 +138,13 @@ export const rssService = {
       body: JSON.stringify({ target_folder_id: folderId })
     });
     if (!res.ok) throw new Error('Failed to move feed');
-    return res.json();
+    const data = await res.json();
+    // Convert backend integer IDs to strings for frontend compatibility
+    return {
+      ...data,
+      id: String(data.id),
+      folderId: data.folder_id ? String(data.folder_id) : null
+    };
   },
 
   /**
