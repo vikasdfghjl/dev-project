@@ -130,3 +130,17 @@ export interface AppContextType {
   selectFeed: (feedId: string | null) => Promise<void>;
   markArticleAsReadService: (articleId: string) => Promise<void>;
 }
+
+// Settings types
+export interface AppSettings {
+  id: number;
+  auto_cleanup_enabled: boolean;
+  auto_cleanup_days: number;
+  refresh_interval_minutes: number;
+}
+
+export interface SettingsUpdate {
+  auto_cleanup_enabled?: boolean;
+  auto_cleanup_days?: number;
+  refresh_interval_minutes?: number;
+}

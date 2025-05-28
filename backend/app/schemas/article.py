@@ -6,6 +6,7 @@ class ArticleBase(BaseModel):
     content: str
     link: str
     pub_date: str
+    image_url: str | None = None  # Add image_url field
     feed_id: int
 
 class ArticleCreate(ArticleBase):

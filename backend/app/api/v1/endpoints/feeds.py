@@ -74,3 +74,15 @@ def move_feed_to_folder(feed_id: int, data: dict = Body(...), db: Session = Depe
     db.commit()
     db.refresh(feed)
     return feed
+
+@router.post("/cleanup-articles")
+def cleanup_old_articles(data: dict = Body(...), db: Session = Depends(database.get_db)):
+    """Delete articles older than specified number of days"""
+    days = data.get("days", 28)  # Default to 28 days
+    
+    # Validate days parameter
+    if days not in [7, 14, 28]:
+        raise HTTPException(status_code=400, detail="Days must be 7, 14, or 28")
+    
+    deleted_count = crud.delete_old_articles(db, days)
+    return {"detail": f"Deleted {deleted_count} articles older than {days} days"}

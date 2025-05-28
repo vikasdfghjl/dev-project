@@ -1,4 +1,4 @@
-import type { Feed, Article, Folder } from '../types';
+import type { Feed, Article, Folder, AppSettings, SettingsUpdate } from '../types';
 
 const API_BASE = 'http://localhost:8000/api/v1'; // Adjust if backend runs elsewhere
 
@@ -141,5 +141,47 @@ export const rssService = {
     if (!res.ok) throw new Error('Failed to fetch feed title');
     const data = await res.json();
     return data.title || '';
+  },
+
+  /**
+   * Delete articles older than specified number of days
+   */
+  cleanupOldArticles: async (days: number): Promise<string> => {
+    const res = await fetch(`${API_BASE}/feeds/cleanup-articles`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ days })
+    });
+    if (!res.ok) throw new Error('Failed to cleanup old articles');
+    const data = await res.json();
+    return data.detail || '';
+  },
+
+  // Settings management
+  getSettings: async (): Promise<AppSettings> => {
+    const response = await fetch(`${API_BASE}/settings/`);
+
+    if (!response.ok) {
+      throw new Error('Failed to fetch settings');
+    }
+
+    return response.json();
+  },
+
+  updateSettings: async (settings: SettingsUpdate): Promise<AppSettings> => {
+    const response = await fetch(`${API_BASE}/settings/`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(settings),
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.detail || 'Failed to update settings');
+    }
+
+    return response.json();
   },
 };

@@ -1,8 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import type { Feed, Folder } from '../types';
+import type { Feed, Folder, AppSettings, SettingsUpdate } from '../types';
 import { SettingsHeader } from './settings/SettingsHeader';
 import { ManageFeedsSection } from './settings/ManageFeedsSection';
 import { ManageFoldersSection } from './settings/ManageFoldersSection';
+import { ArticleCleanupSection } from './settings/ArticleCleanupSection';
+import { AutoCleanupSettingsSection } from './settings/AutoCleanupSettingsSection';
+import { rssService } from '../services/rssService';
 
 interface SettingsPageProps {
   feeds: Feed[];
@@ -16,14 +19,6 @@ interface SettingsPageProps {
   onDeleteFolder: (folderId: string) => void;
 }
 
-const REFRESH_INTERVAL_OPTIONS = [
-  { value: 5, label: 'Every 5 minutes' },
-  { value: 10, label: 'Every 10 minutes' },
-  { value: 15, label: 'Every 15 minutes' },
-  { value: 30, label: 'Every 30 minutes' },
-  { value: 60, label: 'Every 60 minutes' },
-];
-
 const SettingsPageComponent: React.FC<SettingsPageProps> = ({
   feeds,
   folders,
@@ -35,16 +30,42 @@ const SettingsPageComponent: React.FC<SettingsPageProps> = ({
   onRenameFolder,
   onDeleteFolder,
 }) => {
-  // Refresh interval state
-  const [refreshInterval, setRefreshInterval] = useState<number>(() => {
-    const stored = localStorage.getItem('refreshIntervalMinutes');
-    return stored ? parseInt(stored, 10) : 15;
-  });
+  // Settings state
+  const [settings, setSettings] = useState<AppSettings | null>(null);
+  const [isLoadingSettings, setIsLoadingSettings] = useState<boolean>(true);
+  const [settingsError, setSettingsError] = useState<string>('');
 
+  // Load settings on component mount
   useEffect(() => {
-    localStorage.setItem('refreshIntervalMinutes', String(refreshInterval));
-    // Optionally: notify parent/app of change
-  }, [refreshInterval]);
+    const loadSettings = async () => {
+      try {
+        setIsLoadingSettings(true);
+        const appSettings = await rssService.getSettings();
+        setSettings(appSettings);
+      } catch (err: any) {
+        setSettingsError(err.message || 'Failed to load settings');
+      } finally {
+        setIsLoadingSettings(false);
+      }
+    };
+
+    loadSettings();
+  }, []);
+
+  const handleUpdateSettings = async (settingsUpdate: SettingsUpdate) => {
+    try {
+      const updatedSettings = await rssService.updateSettings(settingsUpdate);
+      setSettings(updatedSettings);
+      setSettingsError('');
+    } catch (err: any) {
+      setSettingsError(err.message || 'Failed to update settings');
+      throw err; // Re-throw so components can handle their own error states
+    }
+  };
+
+  const handleArticleCleanup = async (days: number) => {
+    await rssService.cleanupOldArticles(days);
+  };
 
   return (
     <div className="flex-1 overflow-y-auto p-6 md:p-8 bg-background dark:bg-slate-850">
@@ -63,25 +84,29 @@ const SettingsPageComponent: React.FC<SettingsPageProps> = ({
           onDeleteFolder={onDeleteFolder}
           onTriggerRenameFolderModal={onRenameFolder}
         />
-        <section className="mb-6">
-          <h3 className="text-lg font-semibold mb-2">Feed Refresh Interval</h3>
-          <label htmlFor="refresh-interval-select" className="block text-sm font-medium text-muted-foreground dark:text-slate-300 mb-1">
-            How often should feeds be refreshed automatically?
-          </label>
-          <select
-            id="refresh-interval-select"
-            value={refreshInterval}
-            onChange={e => setRefreshInterval(Number(e.target.value))}
-            className="w-full max-w-xs px-3 py-2.5 border border-border dark:border-slate-600 rounded-lg bg-background dark:bg-slate-700 text-foreground dark:text-slate-200 focus:ring-2 focus:ring-primary dark:focus:ring-primary-dark focus:border-primary dark:focus:border-primary-dark outline-none transition-shadow mb-2"
-          >
-            {REFRESH_INTERVAL_OPTIONS.map(opt => (
-              <option key={opt.value} value={opt.value}>{opt.label}</option>
-            ))}
-          </select>
-          <p className="text-xs text-muted-foreground dark:text-slate-400 mt-1">
-            The app will check for new articles at this interval in the background.
-          </p>
-        </section>
+        
+        <ArticleCleanupSection onCleanup={handleArticleCleanup} />
+        
+        {/* Auto Cleanup Settings */}
+        {isLoadingSettings ? (
+          <div className="bg-card dark:bg-slate-800 rounded-lg shadow-sm border border-border dark:border-slate-700 p-6">
+            <div className="flex items-center justify-center py-8">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+              <span className="ml-3 text-muted-foreground">Loading settings...</span>
+            </div>
+          </div>
+        ) : settingsError ? (
+          <div className="bg-card dark:bg-slate-800 rounded-lg shadow-sm border border-border dark:border-slate-700 p-6">
+            <div className="text-red-600 dark:text-red-400 text-center py-8">
+              Error: {settingsError}
+            </div>
+          </div>
+        ) : settings ? (
+          <AutoCleanupSettingsSection 
+            settings={settings}
+            onUpdateSettings={handleUpdateSettings}
+          />
+        ) : null}
       </div>
     </div>
   );

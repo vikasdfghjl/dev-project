@@ -1,5 +1,5 @@
 # SQLAlchemy models for feeds, folders, articles
-from sqlalchemy import Column, Integer, String, ForeignKey, Text
+from sqlalchemy import Column, Integer, String, ForeignKey, Text, Boolean
 from sqlalchemy.orm import relationship
 from app.db.database import Base
 
@@ -25,5 +25,13 @@ class Article(Base):
     content = Column(Text)
     link = Column(String)
     pub_date = Column(String)
+    image_url = Column(String, nullable=True)  # Add image_url field
     feed_id = Column(Integer, ForeignKey("feeds.id"))
     feed = relationship("Feed", back_populates="articles")
+
+class Settings(Base):
+    __tablename__ = "settings"
+    id = Column(Integer, primary_key=True, index=True)
+    auto_cleanup_enabled = Column(Boolean, default=True)
+    auto_cleanup_days = Column(Integer, default=28)  # 7, 14, or 28 days
+    refresh_interval_minutes = Column(Integer, default=60)  # Feed refresh interval

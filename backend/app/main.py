@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.api.v1.api import router as api_v1_router
 from app.db.database import Base, engine
+from app.services.background_tasks import background_manager
 
 Base.metadata.create_all(bind=engine)
 
@@ -17,8 +18,10 @@ app.add_middleware(
 
 app.include_router(api_v1_router, prefix="/api/v1")
 
-from app.services.feed_parser import schedule_periodic_refresh
-
 @app.on_event("startup")
-def start_periodic_refresh():
-    schedule_periodic_refresh(app, interval_seconds=3600)
+def start_background_tasks():
+    background_manager.start(app)
+
+@app.on_event("shutdown")
+def stop_background_tasks():
+    background_manager.stop()
