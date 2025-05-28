@@ -59,4 +59,19 @@ export class BaseApiService {
   protected delete<T>(endpoint: string): Promise<T> {
     return this.request<T>(endpoint, { method: 'DELETE' });
   }
+
+  /**
+   * PATCH request
+   */
+  protected async patch<T>(
+    endpoint: string,
+    data?: any,
+    options?: RequestInit
+  ): Promise<T> {
+    return this.request<T>(endpoint, {
+      ...options,
+      method: 'PATCH',
+      body: data ? JSON.stringify(data) : undefined,
+    });
+  }
 }
