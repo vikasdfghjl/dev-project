@@ -1,13 +1,37 @@
 # CRUD operations for feeds, folders, articles
 from sqlalchemy.orm import Session
 from sqlalchemy import and_
+from sqlalchemy.exc import SQLAlchemyError, OperationalError, DatabaseError
 from datetime import datetime, timedelta
 from app.db.models import Feed, Folder, Article, Settings
 from app.schemas.feed import FeedCreate
 from app.schemas.folder import FolderCreate
 from app.schemas.article import ArticleCreate
 from app.schemas.settings import SettingsCreate, SettingsUpdate
+import logging
 
+# Set up logging
+logger = logging.getLogger(__name__)
+
+def handle_database_operation(operation_name: str):
+    """Decorator to handle database operation errors"""
+    def decorator(func):
+        def wrapper(*args, **kwargs):
+            try:
+                return func(*args, **kwargs)
+            except OperationalError as e:
+                logger.error(f"❌ Database operational error in {operation_name}: {str(e)}")
+                raise DatabaseError(f"Database connection lost during {operation_name}")
+            except SQLAlchemyError as e:
+                logger.error(f"❌ Database error in {operation_name}: {str(e)}")
+                raise
+            except Exception as e:
+                logger.error(f"❌ Unexpected error in {operation_name}: {str(e)}")
+                raise
+        return wrapper
+    return decorator
+
+@handle_database_operation("create_article")
 def create_article(db: Session, article: ArticleCreate):
     db_article = Article(**article.dict())
     db.add(db_article)
@@ -15,12 +39,15 @@ def create_article(db: Session, article: ArticleCreate):
     db.refresh(db_article)
     return db_article
 
+@handle_database_operation("get_feeds")
 def get_feeds(db: Session):
     return db.query(Feed).all()
 
+@handle_database_operation("get_folders")
 def get_folders(db: Session):
     return db.query(Folder).all()
 
+@handle_database_operation("create_folder")
 def create_folder(db: Session, folder: FolderCreate):
     db_folder = Folder(name=folder.name)
     db.add(db_folder)
