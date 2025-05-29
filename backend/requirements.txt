@@ -1,5 +1,28 @@
-fastapi
-uvicorn[standard]
-psycopg2-binary
-sqlalchemy
-python-dotenv
+# FastAPI and web framework dependencies
+fastapi>=0.104.1
+uvicorn[standard]>=0.24.0
+
+# Database dependencies
+sqlalchemy>=2.0.23
+psycopg2-binary>=2.9.7
+
+# Pydantic for data validation and settings
+pydantic>=2.5.0
+pydantic-settings>=2.9.1
+
+# HTTP client for RSS feed fetching
+httpx>=0.28.1
+
+# RSS feed parsing
+feedparser>=6.0.11
+
+# Email utilities (for date parsing)
+email-validator>=2.1.0
+
+# Development and testing dependencies (optional)
+pytest>=7.4.3
+pytest-asyncio>=0.21.1
+python-multipart>=0.0.6
+
+# CORS support (already included in FastAPI)
+# fastapi already includes starlette which provides CORS middleware
