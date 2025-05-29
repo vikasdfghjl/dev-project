@@ -13,10 +13,6 @@ A modern, full-stack RSS reader application with a FastAPI backend, PostgreSQL d
 - Manual refresh button
 - Responsive, modern UI
 - Error handling and feedback
-- **Comprehensive health monitoring and status endpoints**
-- **Graceful degradation when database is unavailable**
-- **Intelligent database error detection and troubleshooting**
-- **Robust configuration validation with helpful error messages**
 
 ## Tech Stack
 
