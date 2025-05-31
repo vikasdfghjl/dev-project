@@ -130,17 +130,23 @@ class TestFeedEndpoints:
         assert response1.status_code == 201
 
         # Attempt to add second feed with same URL
-        # The mock_parse_feed might be called again or not, depending on how early the duplicate check is.
-        # If it's checked before parsing, mock_parse_feed might be called only once.
-        # If it's checked after parsing (e.g. unique constraint in DB on feed_url), then it would be called again.
-        # Let's assume the DB handles the unique constraint for feed_url.
-        mock_parse_feed.reset_mock() # Reset mock for the second call
-        mock_parse_feed.return_value = MOCK_FEED_DATA 
+        mock_parse_feed.reset_mock()
+        mock_parse_feed.return_value = MOCK_FEED_DATA
 
         response2 = self._add_feed_via_api(client, feed_url)
-        assert response2.status_code == 400 # Expecting Bad Request for duplicate
-        assert "detail" in response2.json()
-        # E.g. "Feed with this URL already exists"
+        assert response2.status_code == 400
+        data = response2.json()
+        assert "detail" in data
+        # The detail should be a dict with 'message' and 'existingFeed'
+        detail = data["detail"]
+        assert isinstance(detail, dict)
+        assert "message" in detail
+        assert "existingFeed" in detail
+        assert detail["message"].lower().startswith("a feed with this url already exists")
+        existing_feed = detail["existingFeed"]
+        assert existing_feed["url"] == feed_url
+        assert "id" in existing_feed
+        assert "title" in existing_feed
 
     def test_list_feeds_empty(self, client: TestClient):
         response = client.get("/api/v1/feeds/")

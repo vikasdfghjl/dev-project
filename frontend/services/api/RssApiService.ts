@@ -77,13 +77,42 @@ class RssApiService extends BaseApiService {
     if (!feedName?.trim()) {
       throw new Error('Feed name cannot be empty.');
     }
-
-    const data = await this.post<any>('/feeds/', {
-      url,
-      title: feedName,
-      folder_id: folderId
-    });
-    return this.transformResponse<Feed>(data);
+    try {
+      const data = await this.post<any>('/feeds/', {
+        url,
+        title: feedName,
+        folder_id: folderId
+      });
+      return this.transformResponse<Feed>(data);
+    } catch (err: any) {
+      // If backend returns a 400 error, try to parse and throw a user-friendly message
+      if (err instanceof Error && (err as any).status === 400) {
+        let msg = 'This feed source already exists!!.';
+        if (err.message) {
+          try {
+            const parsed = typeof err.message === 'string' ? JSON.parse(err.message) : err.message;
+            if ((parsed && parsed.existingFeed) || (parsed && parsed.detail && parsed.detail.existingFeed)) {
+              msg = 'This feed source already exists!!.';
+            } else if (
+              (parsed && parsed.detail && typeof parsed.detail === 'string' &&
+                parsed.detail.toLowerCase().includes('already exists'))
+            ) {
+              msg = 'This feed source already exists!!.';
+            } else if (
+              typeof parsed === 'string' && parsed.toLowerCase().includes('already exists')
+            ) {
+              msg = 'This feed source already exists!!.';
+            }
+          } catch {
+            if (err.message.toLowerCase().includes('already exists')) {
+              msg = 'This feed source already exists!!.';
+            }
+          }
+        }
+        throw new Error(msg);
+      }
+      throw err;
+    }
   }
 
   /**

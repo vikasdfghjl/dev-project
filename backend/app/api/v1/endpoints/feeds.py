@@ -20,9 +20,22 @@ def create_feed(feed: feed_schemas.FeedCreate, db: Session = Depends(database.ge
         db_feed = crud.create_feed(db, feed)
         return db_feed
     except IntegrityError as e:
-        db.rollback()
         if "UNIQUE constraint failed" in str(e) or "unique constraint" in str(e).lower():
-            raise HTTPException(status_code=400, detail="Feed with this URL already exists")
+            db.rollback()  # Rollback before querying
+            # Try to find the existing feed and return its details
+            existing_feed = db.query(models.Feed).filter(models.Feed.url == feed.url).first()
+            if existing_feed:
+                from app.schemas.feed import Feed as FeedSchema
+                feed_data = FeedSchema.model_validate(existing_feed)
+                raise HTTPException(
+                    status_code=400,
+                    detail={
+                        "message": "This feed source already exists!!.",
+                        "existingFeed": feed_data.model_dump()
+                    }
+                )
+            raise HTTPException(status_code=400, detail="This feed source already exists!!.")
+        db.rollback()
         raise HTTPException(status_code=400, detail=str(e))
     except ValueError as e:
         db.rollback()

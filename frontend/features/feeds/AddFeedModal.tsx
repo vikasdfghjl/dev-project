@@ -19,6 +19,7 @@ const AddFeedModalComponent: React.FC<AddFeedModalProps> = ({ onClose, onAddFeed
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isFetchingName, setIsFetchingName] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
+  const [existingFeed, setExistingFeed] = useState<any | null>(null);
 
   const handleUrlBlur = async () => {
     if (!url.trim()) return;
@@ -38,6 +39,7 @@ const AddFeedModalComponent: React.FC<AddFeedModalProps> = ({ onClose, onAddFeed
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError(null);
+    setExistingFeed(null);
     if (!url.trim()) {
       setError('Please enter a valid RSS feed URL.');
       return;
@@ -50,9 +52,42 @@ const AddFeedModalComponent: React.FC<AddFeedModalProps> = ({ onClose, onAddFeed
     try {
       await onAddFeed(url, feedName, selectedFolderId);
       // onClose will be called by parent on success if submission is successful
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to add feed. Please check the URL.');
-      setIsLoading(false); // Keep modal open on error
+    } catch (err: any) {
+      let message = 'Failed to add feed. Please check the URL.';
+      let existing = null;
+      if (err && err.message) {
+        try {
+          const parsed = typeof err.message === 'string' ? JSON.parse(err.message) : err.message;
+          if ((parsed && parsed.existingFeed) || (parsed && parsed.detail && parsed.detail.existingFeed)) {
+            message = 'This feed source already exists!!.';
+            existing = parsed.existingFeed || (parsed.detail && parsed.detail.existingFeed);
+          } else if (
+            (parsed && parsed.detail && typeof parsed.detail === 'string' &&
+              parsed.detail.toLowerCase().includes('already exists'))
+          ) {
+            message = 'This feed source already exists!!.';
+          } else if (
+            typeof parsed === 'string' && parsed.toLowerCase().includes('already exists')
+          ) {
+            message = 'This feed source already exists!!.';
+          } else {
+            message = err.message;
+          }
+        } catch {
+          if (err.message && err.message.toLowerCase().includes('already exists')) {
+            message = 'This feed source already exists!!.';
+          } else if (err.status === 400) {
+            message = 'This feed source already exists!!.';
+          } else {
+            message = err.message;
+          }
+        }
+      } else if (err && err.status === 400) {
+        message = 'This feed source already exists!!.';
+      }
+      setError(message);
+      setExistingFeed(existing);
+      setIsLoading(false);
     }
   };
 
@@ -145,7 +180,26 @@ const AddFeedModalComponent: React.FC<AddFeedModalProps> = ({ onClose, onAddFeed
           </select>
         </div>
         
-        {error && <p className="text-sm text-red-600 dark:text-red-400 mt-3 text-center p-2 bg-red-50 dark:bg-red-900/30 rounded-md">{error}</p>}
+        {error && (
+          <div className="text-sm text-red-600 dark:text-red-400 mt-3 text-center p-2 bg-red-50 dark:bg-red-900/30 rounded-md">
+            {error}
+            {existingFeed && (
+              <div className="mt-2">
+                <span>This feed is already in your list.</span>
+                <div className="mt-1">
+                  <a
+                    href={existingFeed.site_url || existingFeed.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-primary underline hover:text-primary-dark"
+                  >
+                    View existing feed: {existingFeed.title || existingFeed.url}
+                  </a>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
       </form>
     </Modal>
   );
