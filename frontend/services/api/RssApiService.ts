@@ -113,7 +113,7 @@ class RssApiService extends BaseApiService {
    * Fetches articles for a specific feed
    */
   async getArticles(feedId: string): Promise<Article[]> {
-    const data = await this.get<any[]>(`/feeds/${feedId}/articles`);
+    const data = await this.get<any[]>(`/feeds/${feedId}/articles/`); // Use trailing slash to avoid 307 redirect
     return this.transformResponse<Article[]>(data);
   }
 
