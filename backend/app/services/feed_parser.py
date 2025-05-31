@@ -11,6 +11,8 @@ from datetime import datetime
 from email.utils import parsedate_to_datetime
 from dataclasses import dataclass
 from typing import List, Optional
+import requests
+from bs4 import BeautifulSoup
 
 # Data classes for testing
 @dataclass
@@ -259,5 +261,25 @@ def schedule_periodic_refresh(app, interval_seconds=3600):
     import threading
     thread = threading.Thread(target=periodic, daemon=True)
     thread.start()
+
+def fetch_favicon_url(site_url: str) -> str | None:
+    """Attempt to fetch the favicon URL from the given site URL."""
+    try:
+        resp = httpx.get(site_url, timeout=10)
+        resp.raise_for_status()
+        soup = BeautifulSoup(resp.text, "html.parser")
+        # Look for <link rel="icon"> or <link rel="shortcut icon">
+        icon_link = soup.find("link", rel=lambda x: x and "icon" in x.lower())
+        if icon_link and icon_link.get("href"):
+            href = icon_link["href"]
+            # Convert relative URLs to absolute
+            if not href.startswith("http://") and not href.startswith("https://"):
+                href = urljoin(site_url, href)
+            return href
+        # Fallback: try default /favicon.ico
+        parsed = urlparse(site_url)
+        return f"{parsed.scheme}://{parsed.netloc}/favicon.ico"
+    except Exception:
+        return None
 
 # In main.py, call schedule_periodic_refresh(app) in a startup event

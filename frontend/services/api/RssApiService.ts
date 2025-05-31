@@ -63,12 +63,9 @@ class RssApiService extends BaseApiService {
    * Fetches all feeds for the user
    */
   async getFeeds(): Promise<Feed[]> {
-    console.log('🔄 RssApiService.getFeeds called');
+    // Removed debug logging for production
     const data = await this.get<any[]>('/feeds/');
-    console.log('📊 Raw feeds data from backend:', data);
-    const transformed = this.transformResponse<Feed[]>(data);
-    console.log('📊 Transformed feeds data:', transformed);
-    return transformed;
+    return this.transformResponse<Feed[]>(data);
   }
   /**
    * Adds a new feed by its URL

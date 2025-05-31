@@ -9,6 +9,7 @@ from app.schemas.folder import FolderCreate
 from app.schemas.article import ArticleCreate
 from app.schemas.settings import SettingsCreate, SettingsUpdate
 import logging
+from app.services.feed_parser import parse_feed, fetch_favicon_url
 
 # Set up logging
 logger = logging.getLogger(__name__)
@@ -72,16 +73,20 @@ def create_folder(db: Session, folder: FolderCreate):
     return db_folder
 
 def create_feed(db: Session, feed: FeedCreate):
-    from app.services.feed_parser import parse_feed
     try:
         parsed_data = parse_feed(feed.url)
+        # Try to get favicon from site_url if available
+        favicon_url = None
+        if parsed_data.site_url:
+            favicon_url = fetch_favicon_url(parsed_data.site_url)
         db_feed = Feed(
             url=feed.url,
             folder_id=feed.folder_id,
             title=parsed_data.title,
             feed_url=feed.url,  # Store original URL
             site_url=parsed_data.site_url,
-            description=parsed_data.description
+            description=parsed_data.description,
+            favicon=favicon_url
         )
         db.add(db_feed)
         db.commit()
@@ -114,7 +119,8 @@ def create_feed(db: Session, feed: FeedCreate):
             folder_id=feed.folder_id,
             title=feed.title or "Untitled",
             feed_url=feed.url,
-            site_url=feed.url
+            site_url=feed.url,
+            favicon=None
         )
         db.add(db_feed)
         db.commit()

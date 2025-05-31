@@ -13,6 +13,7 @@ class FeedCreate(BaseModel):
     url: str
     title: str | None = None
     folder_id: str | None = None
+    favicon: str | None = None  # Add favicon to creation schema
 
 class Feed(FeedBase):
     id: str
@@ -21,6 +22,7 @@ class Feed(FeedBase):
     site_url: str | None = None
     description: str | None = None
     folder_id: str | None = None
+    favicon: str | None = None  # Add favicon to schema
     articles: List[Article] = []  # Add articles field with correct Pydantic type
 
     @field_validator('id', mode='before')

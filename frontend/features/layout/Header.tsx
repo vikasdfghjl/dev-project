@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { PlusIcon } from '../shared/icons/PlusIcon';
 import { RssIcon } from '../shared/icons/RssIcon';
+import { RefreshIcon } from '../shared/icons/RefreshIcon';
 import { Button } from '../shared/ui/Button';
 
 interface HeaderProps {
@@ -35,7 +36,7 @@ const HeaderComponent: React.FC<HeaderProps> = ({ onAddFeedClick, onRefreshFeeds
             size="md"
             isLoading={isRefreshing}
             title="Refresh feeds"
-            leftIcon={!isRefreshing ? <span className="material-icons">refresh</span> : undefined}
+            leftIcon={!isRefreshing ? <RefreshIcon className="h-5 w-5" /> : undefined}
           >
             Refresh
           </Button>

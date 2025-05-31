@@ -28,12 +28,6 @@ const ArticleCardItemComponent: React.FC<ArticleCardItemProps> = ({ article, isS
     return null;
   })();
 
-  // Debug log for image rendering
-  React.useEffect(() => {
-    // eslint-disable-next-line no-console
-    console.log('[ArticleCardItem] imageUrl:', imageUrl, 'article.imageUrl:', article.imageUrl, 'article.content:', article.content);
-  }, [imageUrl, article.imageUrl, article.content]);
-
   return (
     <div
       className={`
