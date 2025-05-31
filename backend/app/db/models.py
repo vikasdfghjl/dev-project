@@ -18,6 +18,7 @@ class Feed(Base):
     site_url = Column(String, nullable=True)  # Add site_url field for tests
     title = Column(String, index=True)
     description = Column(Text, nullable=True)  # Add description field
+    favicon = Column(String, nullable=True)  # Add favicon field to Feed
     folder_id = Column(Integer, ForeignKey("folders.id"), nullable=True)
     folder = relationship("Folder", back_populates="feeds")
     articles = relationship("Article", back_populates="feed")

@@ -27,11 +27,11 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
       // Don't refresh if there was a recent API operation (within last 10 seconds)
       const timeSinceLastOperation = Date.now() - lastApiOperationRef.current;
       if (timeSinceLastOperation < 10000) {
-        console.log('⏸️ Skipping background refresh due to recent API operation');
+        // Removed debug logging for production
         return;
       }
       
-      console.log('🔄 Background refresh triggered');
+      // Removed debug logging for production
       dispatch({ type: 'INIT_APP_START' });
       Promise.all([rssService.getFeeds(), rssService.getFolders()])
         .then(([feeds, folders]) => {
@@ -46,12 +46,11 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
 
   // Initial data loading
   useEffect(() => {
-    console.log('🚀 Initial app loading started');
+    // Removed debug logging for production
     dispatch({ type: 'INIT_APP_START' });
     Promise.all([rssService.getFeeds(), rssService.getFolders()])
       .then(([feeds, folders]) => {
-        console.log('📊 Initial feeds loaded:', feeds);
-        console.log('📊 Initial folders loaded:', folders);
+        // Removed debug logging for production
         dispatch({ type: 'INIT_APP_SUCCESS', payload: { feeds, folders } });
         // Trigger loading all articles if "All Articles" is default
         if (initialState.selectedFeedId === ALL_ARTICLES_VIEW_ID && feeds.length > 0) {
@@ -64,7 +63,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
                         if (result.status === 'fulfilled' && result.value) {
                             successfullyFetchedArticles.push(...result.value);
                         } else if (result.status === 'rejected') {
-                            console.warn(`Failed to load articles for a feed during initial "All Articles" fetch:`, result.reason);
+                            // Keep warning for failed fetches
                         }
                     });
                     dispatch({ type: 'LOAD_ALL_ARTICLES_SUCCESS', payload: successfullyFetchedArticles });
@@ -73,6 +72,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
         }
       })
       .catch(err => {
+        // Keep error logging for failures
         console.error('❌ Initial app loading failed:', err);
         dispatch({ type: 'INIT_APP_FAILURE', payload: err.message || 'Failed to initialize app' });
       });

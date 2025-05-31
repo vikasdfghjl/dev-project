@@ -1,4 +1,3 @@
-
 import React from 'react';
 import type { Feed } from '../../../types';
 import { RssIcon } from '../../shared/icons/RssIcon';
@@ -8,11 +7,12 @@ interface FeedItemInfoProps {
 }
 
 const FeedItemInfoComponent: React.FC<FeedItemInfoProps> = ({ feed }) => {
-  // Simplified onError handler: hides image on error.
-  // A more robust solution might involve state to render a fallback component.
+  // Simplified onError handler: hides image on error and shows fallback icon.
   const handleImageError = (e: React.SyntheticEvent<HTMLImageElement, Event>) => {
-    e.currentTarget.style.display = 'none';
-    // Optionally, display a sibling placeholder icon or trigger a state update
+    const img = e.currentTarget;
+    img.style.display = 'none';
+    const fallbackIcon = img.nextElementSibling as HTMLElement | null;
+    if (fallbackIcon) fallbackIcon.classList.remove('hidden');
   };
 
   return (
@@ -25,7 +25,7 @@ const FeedItemInfoComponent: React.FC<FeedItemInfoProps> = ({ feed }) => {
             className="h-5 w-5 mr-2.5 rounded-sm flex-shrink-0 object-contain"
             onError={handleImageError}
           />
-          {/* Fallback icon initially hidden, could be shown by onError if image fails */}
+          {/* Fallback icon initially hidden, shown if image fails */}
           <RssIcon className="h-5 w-5 mr-2.5 text-slate-400 dark:text-slate-500 flex-shrink-0 hidden" />
         </>
       ) : (

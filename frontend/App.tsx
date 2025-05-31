@@ -61,27 +61,19 @@ const AppContent: React.FC = () => {
   }, [state.articleFilterOption, setFilterOption]);
 
   const feedsByFolder = useMemo(() => {
-    console.log('🔄 Calculating feedsByFolder with feeds:', state.feeds);
-    console.log('🔄 Calculating feedsByFolder with folders:', state.folders);
+    // Removed debug logging for production
     const result: { [folderId: string]: Feed[] } = {};
     state.folders.forEach(folder => result[folder.id] = []);
     state.feeds.forEach(feed => {
-      console.log(`🔍 Processing feed ${feed.title} with folderId: ${feed.folderId}`);
       if (feed.folderId && result[feed.folderId]) {
         result[feed.folderId].push(feed);
-        console.log(`✅ Added feed ${feed.title} to folder ${feed.folderId}`);
-      } else {
-        console.log(`⚠️ Feed ${feed.title} not added to any folder (folderId: ${feed.folderId})`);
       }
     });
-    console.log('📊 Final feedsByFolder result:', result);
     return result;
   }, [state.feeds, state.folders]);
 
   const ungroupedFeeds = useMemo(() => {
-    const result = state.feeds.filter(feed => !feed.folderId);
-    console.log('📊 Ungrouped feeds:', result);
-    return result;
+    return state.feeds.filter(feed => !feed.folderId);
   }, [state.feeds]);
 
   const initialAppLoading = state.isLoadingFeeds || state.isLoadingFolders;
