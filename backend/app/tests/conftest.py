@@ -11,7 +11,7 @@ from app.main import app
 from app.db.database import Base, get_db
 # Import models that factories will create
 from app.db.models import Folder as FolderModel, Feed as FeedModel 
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, declarative_base
 
 
 SQLALCHEMY_DATABASE_URL = "sqlite:///:memory:"
