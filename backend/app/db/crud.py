@@ -45,7 +45,23 @@ def get_feeds(db: Session):
 
 @handle_database_operation("get_folders")
 def get_folders(db: Session):
-    return db.query(Folder).all()
+    folders = db.query(Folder).all()
+    from app.schemas.feed import Feed as FeedSchema
+    result = []
+    for folder in folders:
+        # Get feeds for this folder
+        feeds = db.query(Feed).filter(Feed.folder_id == folder.id).all()
+        # Convert feeds to Pydantic models
+        feeds_data = [FeedSchema.model_validate(feed) for feed in feeds]
+        # Convert folder to Pydantic model, inject feeds
+        folder_data = folder
+        folder_dict = folder.__dict__.copy()
+        folder_dict['feeds'] = feeds_data
+        # Use Folder schema to serialize
+        from app.schemas.folder import Folder as FolderSchema
+        folder_pydantic = FolderSchema.model_validate(folder_dict)
+        result.append(folder_pydantic)
+    return result
 
 @handle_database_operation("create_folder")
 def create_folder(db: Session, folder: FolderCreate):

@@ -45,6 +45,18 @@ class RssApiService extends BaseApiService {
       delete transformed.feed_id;
     }
 
+    // Convert image_url to imageUrl for articles
+    if (transformed.image_url !== undefined) {
+      transformed.imageUrl = transformed.image_url;
+      delete transformed.image_url;
+    }
+
+    // Convert published_at to pubDate for articles
+    if (transformed.published_at !== undefined) {
+      transformed.pubDate = transformed.published_at;
+      delete transformed.published_at;
+    }
+
     return transformed;
   }
   /**
