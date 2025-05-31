@@ -26,3 +26,5 @@ python-multipart>=0.0.6
 
 # CORS support (already included in FastAPI)
 # fastapi already includes starlette which provides CORS middleware
+
+psutil

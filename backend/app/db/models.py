@@ -1,6 +1,7 @@
 # SQLAlchemy models for feeds, folders, articles
-from sqlalchemy import Column, Integer, String, ForeignKey, Text, Boolean
+from sqlalchemy import Column, Integer, String, ForeignKey, Text, Boolean, DateTime, UniqueConstraint
 from sqlalchemy.orm import relationship
+from sqlalchemy.sql import func
 from app.db.database import Base
 
 class Folder(Base):
@@ -13,7 +14,10 @@ class Feed(Base):
     __tablename__ = "feeds"
     id = Column(Integer, primary_key=True, index=True)
     url = Column(String, unique=True, index=True)
+    feed_url = Column(String, nullable=True)  # Add feed_url field for tests
+    site_url = Column(String, nullable=True)  # Add site_url field for tests
     title = Column(String, index=True)
+    description = Column(Text, nullable=True)  # Add description field
     folder_id = Column(Integer, ForeignKey("folders.id"), nullable=True)
     folder = relationship("Folder", back_populates="feeds")
     articles = relationship("Article", back_populates="feed")
@@ -21,13 +25,24 @@ class Feed(Base):
 class Article(Base):
     __tablename__ = "articles"
     id = Column(Integer, primary_key=True, index=True)
-    title = Column(String, index=True)
-    content = Column(Text)
-    link = Column(String)
-    pub_date = Column(String)
-    image_url = Column(String, nullable=True)  # Add image_url field
-    feed_id = Column(Integer, ForeignKey("feeds.id"))
+    title = Column(String, index=True, nullable=False)
+    content = Column(Text, nullable=True)
+    link = Column(String, nullable=False)
+    pub_date = Column(String, nullable=True)
+    image_url = Column(String, nullable=True)
+    is_read = Column(Boolean, default=False)
+    guid = Column(String, nullable=True)
+    published_at = Column(String, nullable=True)  # For test compatibility
+    description = Column(Text, nullable=True)  # Add description field for tests
+    created_at = Column(DateTime, default=func.now())
+    updated_at = Column(DateTime, default=func.now(), onupdate=func.now())
+    feed_id = Column(Integer, ForeignKey("feeds.id"), nullable=False)
     feed = relationship("Feed", back_populates="articles")
+
+    # Add unique constraint for (feed_id, guid) to ensure uniqueness within feed
+    __table_args__ = (
+        UniqueConstraint('feed_id', 'guid', name='_feed_guid_uc'),
+    )
 
 class Settings(Base):
     __tablename__ = "settings"

@@ -1,5 +1,5 @@
 # Settings schemas
-from pydantic import BaseModel, field_validator
+from pydantic import BaseModel, field_validator, ConfigDict
 
 class SettingsBase(BaseModel):
     auto_cleanup_enabled: bool = True
@@ -30,6 +30,4 @@ class SettingsUpdate(BaseModel):
 
 class Settings(SettingsBase):
     id: int
-    
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
