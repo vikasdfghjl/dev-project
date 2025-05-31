@@ -63,9 +63,26 @@ npm run build
 npm run preview
 ```
 
-## How to Run Tests
+## Running Tests
 
-_Tests are not included by default. Add your preferred testing framework (e.g., Jest, Vitest) and run as needed._
+This project uses [Vitest](https://vitest.dev/) and [@testing-library/react](https://testing-library.com/docs/react-testing-library/intro/) for frontend unit and integration tests.
+
+To run all tests:
+
+```bash
+npx vitest run
+```
+
+To run tests in watch mode (auto-restart on file changes):
+
+```bash
+npx vitest
+```
+
+Test files are located in the `__tests__` directory at the root of the `frontend` folder. All test utilities are configured in `setupTests.ts`.
+
+
+If you add new test files, use the `.test.tsx` or `.test.ts` suffix.
 
 ## Environment Variables Example (`.env.local`)
 

@@ -34,43 +34,7 @@ A modern, full-stack RSS reader application with a FastAPI backend, PostgreSQL d
 
 ## 📚 API Endpoints (v1)
 
-### Core RSS Management
-
-| Method | Endpoint                              | Description                                 |
-|--------|----------------------------------------|---------------------------------------------|
-| GET    | `/api/v1/feeds/`                      | List all feeds                              |
-| POST   | `/api/v1/feeds/`                      | Add a new feed                              |
-| DELETE | `/api/v1/feeds/{feed_id}`             | Delete a feed                               |
-| GET    | `/api/v1/feeds/{feed_id}/articles/`   | List articles for a feed                    |
-| POST   | `/api/v1/feeds/{feed_id}/refresh`     | Manually refresh a feed                     |
-| POST   | `/api/v1/feeds/fetchFeedTitle`        | Fetch and return the title of a feed by URL |
-| PATCH  | `/api/v1/feeds/{feed_id}/move`        | Move a feed to a different folder           |
-
-### Folder Management
-
-| Method | Endpoint                        | Description                                 |
-|--------|----------------------------------|---------------------------------------------|
-| GET    | `/api/v1/folders/`               | List all folders                            |
-| POST   | `/api/v1/folders/`               | Add a new folder                            |
-| PUT    | `/api/v1/folders/{folder_id}`    | Rename a folder                             |
-| DELETE | `/api/v1/folders/{folder_id}`    | Delete a folder                             |
-
-### Health & Status Monitoring
-
-| Method | Endpoint                        | Description                                 |
-|--------|----------------------------------|---------------------------------------------|
-| GET    | `/api/v1/status/`               | Comprehensive health check with system info |
-| GET    | `/api/v1/status/simple`         | Simple health status check                  |
-| GET    | `/api/v1/status/database`       | Detailed database connection status         |
-
----
-
-## 🩺 Health Monitoring & Graceful Degradation
-
-- **Status Endpoints Always Available:** Health checks work even if the database is down
-- **Startup Without Database:** App starts and serves status endpoints without DB
-- **Intelligent Error Messages:** Detailed troubleshooting for config issues
-- **Connection Retry Logic:** Automatic retry with exponential backoff
+See [`backend/README.md`](backend/README.md) for a full list of API endpoints and usage examples.
 
 ---
 
@@ -78,67 +42,39 @@ A modern, full-stack RSS reader application with a FastAPI backend, PostgreSQL d
 
 ### Backend (FastAPI)
 
-1. **Install dependencies:**
-
-   ```sh
-   cd backend
-   uv pip install -r requirements.txt
-   # or
-   pip install -r requirements.txt
-   ```
-
-2. **Configure environment:**
-
-   Create a `.env` file in `backend/`:
-
-   ```sh
-   DATABASE_URL=postgresql://username:password@localhost:5432/database_name
-   ```
-
-3. **(Optional) Set up PostgreSQL:**
-   - Ensure PostgreSQL is running and a database exists (e.g., `rssdb`).
-
-4. **Run migrations (if using Alembic):**
-
-   ```sh
-   alembic upgrade head
-   ```
-
-5. **Start the backend server:**
-
-   ```sh
-   # From backend directory
-   uvicorn app.main:app --reload
-   # If you get import errors, try:
-   $env:PYTHONPATH="C:\path\to\your\backend"; uvicorn app.main:app --reload
-   ```
-
-   The API is at [http://localhost:8000/api/v1/](http://localhost:8000/api/v1/)
-
-6. **Test health endpoints:**
-
-   ```sh
-   curl http://localhost:8000/api/v1/status/simple
-   curl http://localhost:8000/api/v1/status/
-   curl http://localhost:8000/api/v1/status/database
-   ```
+See [`backend/README.md`](backend/README.md) for detailed backend setup, environment variables, and migration instructions.
 
 ### Frontend (React)
 
-1. **Install dependencies:**
+See [`frontend/README.md`](frontend/README.md) for detailed frontend setup, environment variables, and available scripts.
 
-   ```sh
-   cd frontend
-   npm install
-   ```
+---
 
-2. **Start the dev server:**
+## 🧪 Running Tests
 
-   ```sh
-   npm run dev
-   ```
+### Backend Testing
 
-   The app is at [http://localhost:5173/](http://localhost:5173/)
+Run backend tests from the `backend/` directory:
+
+```sh
+pytest
+```
+
+### Frontend Testing
+
+Run frontend tests from the `frontend/` directory:
+
+```bash
+npx vitest run
+```
+
+To run in watch mode:
+
+```bash
+npx vitest
+```
+
+See [`frontend/README.md`](frontend/README.md) for more details and troubleshooting.
 
 ---
 
@@ -165,7 +101,7 @@ docker-compose down -v
 
 ### Individual Containers
 
-#### Backend
+#### Backend Container
 
 ```sh
 cd backend
@@ -173,7 +109,7 @@ docker build -t rss-reader-backend .
 docker run -d --name rss-backend -p 8000:8000 -e DATABASE_URL=postgresql://username:password@host:5432/database_name rss-reader-backend
 ```
 
-#### Frontend
+#### Frontend Container
 
 ```sh
 cd frontend
@@ -216,6 +152,14 @@ docker run -d --name rss-frontend -p 80:80 rss-reader-frontend
 
 ---
 
+## 🧪 Testing Overview
+
+- **Backend:** Uses `pytest` for API and DB tests. See [`backend/README.md`](backend/README.md).
+- **Frontend:** Uses `Vitest` and `@testing-library/react` for unit and integration tests. See [`frontend/README.md`](frontend/README.md).
+- Test files are in `backend/app/tests/` and `frontend/__tests__/`.
+
+---
+
 ## 📝 Recent Improvements
 
 - **Backend:**
@@ -227,9 +171,11 @@ docker run -d --name rss-frontend -p 80:80 rss-reader-frontend
   - API data transformation (image, date fields)
   - Modern UI, feature-based structure
   - TypeScript type safety
+  - Comprehensive test scaffolding with Vitest
   - Bugfixes for images, publish dates, and API redirects
 - **Docs:**
   - Modernized README with quickstart, troubleshooting, Docker/dev tips
+  - Clear test instructions for both frontend and backend
 
 ---
 
