@@ -9,25 +9,104 @@ from fastapi import BackgroundTasks
 from urllib.parse import urljoin, urlparse
 from datetime import datetime
 from email.utils import parsedate_to_datetime
+from dataclasses import dataclass
+from typing import List, Optional
+
+# Data classes for testing
+@dataclass
+class ArticleData:
+    title: str
+    link: str
+    published_at: str
+    guid: str
+    content: Optional[str] = None
+    image_url: Optional[str] = None
+
+@dataclass  
+class FeedData:
+    title: str
+    link: str
+    site_url: str
+    description: str
+    articles: List[ArticleData]
 
 # Placeholder for feed parser service
 
-def standardize_date(date_str: str) -> str:
-    """Convert various date formats to ISO format"""
+def standardize_date(date_str: str) -> datetime:
+    """Convert various date formats to datetime object"""
+    if not date_str:
+        return datetime.now()
+    
     try:
         # Try parsing with email.utils (handles RFC822 format)
         dt = parsedate_to_datetime(date_str)
-        return dt.isoformat()
+        return dt
     except:
         try:
             # Try parsing with feedparser's date handling
             dt = feedparser._parse_date(date_str)
             if dt:
-                return dt.isoformat()
+                return dt
         except:
             pass
     # If all parsing fails, return current time
-    return datetime.now().isoformat()
+    return datetime.now()
+
+def parse_feed(url: str) -> FeedData:
+    """Parse RSS feed from URL and return structured data"""
+    try:
+        response = httpx.get(url, timeout=10)
+        response.raise_for_status()
+    except Exception as e:
+        raise ValueError(f"Failed to fetch feed from {url}: {e}")
+    
+    try:
+        parsed = feedparser.parse(response.text)
+        
+        # Extract feed information
+        feed_title = parsed.feed.get("title", "Untitled Feed")
+        feed_link = parsed.feed.get("link", url)
+        site_url = feed_link
+        description = parsed.feed.get("description", "")
+        
+        # Parse articles
+        articles = []
+        for entry in parsed.entries:
+            article = ArticleData(
+                title=entry.get("title", "No title"),
+                link=entry.get("link", ""),
+                published_at=standardize_date(entry.get("published", "")),
+                guid=entry.get("id", entry.get("link", "")),
+                content=entry.get("summary", ""),
+                image_url=extract_image_url(entry)
+            )
+            articles.append(article)
+        
+        return FeedData(
+            title=feed_title,
+            link=feed_link,
+            site_url=site_url,
+            description=description,
+            articles=articles
+        )
+    except Exception as e:
+        raise ValueError(f"Failed to parse feed: {e}")
+
+def fetch_feed_title_and_url(url: str) -> dict:
+    """Fetch just the title and URL information from a feed"""
+    try:
+        response = httpx.get(url, timeout=10)
+        response.raise_for_status()
+        
+        parsed = feedparser.parse(response.text)
+        title = parsed.feed.get("title", "")
+        
+        return {
+            "title": title,
+            "url": url
+        }
+    except Exception as e:
+        raise ValueError(f"Could not fetch feed title: {e}")
 
 def extract_image_url(entry, base_url=None):
     """Extract image URL from RSS entry using multiple methods"""
@@ -139,8 +218,7 @@ def fetch_and_save_articles_for_feed(feed: models.Feed, db: Session):
         if not pub_date and hasattr(entry, 'updated'):
             pub_date = entry.updated
         standardized_date = standardize_date(pub_date)
-        
-        # Get content from the most appropriate field
+          # Get content from the most appropriate field
         content = None
         if hasattr(entry, 'content') and entry.content:
             content = entry.content[0].value
@@ -153,9 +231,10 @@ def fetch_and_save_articles_for_feed(feed: models.Feed, db: Session):
             title=entry.get("title", "No title"),
             content=content or "",
             link=link,
-            pub_date=standardized_date,
+            published_at=standardized_date,
             image_url=image_url,
-            feed_id=feed.id
+            feed_id=feed.id,
+            guid=entry.get("id", link)  # Use entry id or link as guid
         )
         crud.create_article(db, article)
         new_articles += 1

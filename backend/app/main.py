@@ -6,6 +6,9 @@ from app.db.database import Base, engine, health_check_database
 from app.services.background_tasks import background_manager
 import logging
 
+# Application version
+APP_VERSION = "1.0.0"
+
 # Set up logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)

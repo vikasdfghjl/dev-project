@@ -6,6 +6,7 @@ from app.db.database import health_check_database
 import sys
 import platform
 import os
+import psutil
 
 router = APIRouter()
 
@@ -21,7 +22,12 @@ class SystemStatus(BaseModel):
     platform: str
     architecture: str
     os_name: str
-    cpu_count: int
+    cpu_cores: int | None = None
+    total_memory_gb: float
+    available_memory_gb: float
+    load_average_1m: float | None = None
+    load_average_5m: float | None = None
+    load_average_15m: float | None = None
 
 class HealthStatus(BaseModel):
     """Overall application health status"""
@@ -57,21 +63,41 @@ async def get_status():
             response_time_ms=db_response_time if db_connected else None
         )
         
+        # Get memory information
+        memory = psutil.virtual_memory()
+        total_memory_gb = memory.total / (1024**3)
+        available_memory_gb = memory.available / (1024**3)
+        
+        # Get load averages (Unix-like systems only)
+        load_avg_1m = None
+        load_avg_5m = None
+        load_avg_15m = None
+        try:
+            if hasattr(os, 'getloadavg'):
+                load_avg_1m, load_avg_5m, load_avg_15m = os.getloadavg()
+        except (OSError, AttributeError):
+            # Load averages not available on Windows
+            pass
+        
         # Get system information
         system_status = SystemStatus(
             python_version=f"{sys.version_info.major}.{sys.version_info.minor}.{sys.version_info.micro}",
             platform=platform.system(),
             architecture=platform.machine(),
             os_name=platform.platform(),
-            cpu_count=os.cpu_count() or 1
+            cpu_cores=os.cpu_count(),
+            total_memory_gb=total_memory_gb,
+            available_memory_gb=available_memory_gb,
+            load_average_1m=load_avg_1m,
+            load_average_5m=load_avg_5m,
+            load_average_15m=load_avg_15m
         )
-        
-        # Calculate uptime
+          # Calculate uptime
         uptime = (datetime.now() - _app_start_time).total_seconds()
         
         # Determine overall status
         if db_connected:
-            overall_status = "healthy"
+            overall_status = "ok"
         else:
             overall_status = "unhealthy"
         
@@ -100,7 +126,9 @@ async def get_status():
                 platform=platform.system(),
                 architecture=platform.machine(),
                 os_name=platform.platform(),
-                cpu_count=os.cpu_count() or 1
+                cpu_cores=os.cpu_count(),
+                total_memory_gb=0.0,
+                available_memory_gb=0.0
             )
         )
 

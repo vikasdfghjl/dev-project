@@ -1,5 +1,5 @@
 # CRUD operations for feeds, folders, articles
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload # Import joinedload
 from sqlalchemy import and_
 from sqlalchemy.exc import SQLAlchemyError, OperationalError, DatabaseError
 from datetime import datetime, timedelta
@@ -33,7 +33,7 @@ def handle_database_operation(operation_name: str):
 
 @handle_database_operation("create_article")
 def create_article(db: Session, article: ArticleCreate):
-    db_article = Article(**article.dict())
+    db_article = Article(**article.model_dump())
     db.add(db_article)
     db.commit()
     db.refresh(db_article)
@@ -41,7 +41,7 @@ def create_article(db: Session, article: ArticleCreate):
 
 @handle_database_operation("get_feeds")
 def get_feeds(db: Session):
-    return db.query(Feed).all()
+    return db.query(Feed).options(joinedload(Feed.articles)).all() # Eager load articles
 
 @handle_database_operation("get_folders")
 def get_folders(db: Session):
@@ -56,20 +56,59 @@ def create_folder(db: Session, folder: FolderCreate):
     return db_folder
 
 def create_feed(db: Session, feed: FeedCreate):
-    db_feed = Feed(
-        url=feed.url,
-        folder_id=feed.folder_id,
-        title=feed.title or "Untitled"
-    )
-    db.add(db_feed)
-    db.commit()
-    db.refresh(db_feed)
-    return db_feed
+    from app.services.feed_parser import parse_feed
+    try:
+        parsed_data = parse_feed(feed.url)
+        db_feed = Feed(
+            url=feed.url,
+            folder_id=feed.folder_id,
+            title=parsed_data.title,
+            feed_url=feed.url,  # Store original URL
+            site_url=parsed_data.site_url,
+            description=parsed_data.description
+        )
+        db.add(db_feed)
+        db.commit()
+        db.refresh(db_feed)
+        for article_data in parsed_data.articles:
+            from datetime import datetime
+            published_at = None
+            if article_data.published_at:
+                try:
+                    published_at = datetime.fromisoformat(article_data.published_at.replace('Z', '+00:00'))
+                except:
+                    published_at = datetime.now()
+            article = Article(
+                title=article_data.title,
+                link=article_data.link,
+                guid=article_data.guid,
+                published_at=published_at,
+                description=article_data.content,
+                image_url=article_data.image_url,
+                feed_id=db_feed.id
+            )
+            db.add(article)
+        db.commit()
+        return db_feed
+    except ValueError as e:
+        raise e
+    except Exception as e:
+        db_feed = Feed(
+            url=feed.url,
+            folder_id=feed.folder_id,
+            title=feed.title or "Untitled",
+            feed_url=feed.url,
+            site_url=feed.url
+        )
+        db.add(db_feed)
+        db.commit()
+        db.refresh(db_feed)
+        return db_feed
 
-def get_articles_for_feed(db: Session, feed_id: int):
+def get_articles_for_feed(db: Session, feed_id):
     return db.query(Article).filter(Article.feed_id == feed_id).all()
 
-def delete_feed(db: Session, feed_id: int):
+def delete_feed(db: Session, feed_id):
     # First delete all articles for this feed
     db.query(Article).filter(Article.feed_id == feed_id).delete()
     # Then delete the feed
@@ -79,7 +118,7 @@ def delete_feed(db: Session, feed_id: int):
         return {"ok": True}
     return {"ok": False, "error": "Feed not found"}
 
-def delete_folder(db: Session, folder_id: int):
+def delete_folder(db: Session, folder_id):
     # First, set all feeds in this folder to have no folder (ungrouped)
     db.query(Feed).filter(Feed.folder_id == folder_id).update({"folder_id": None})
     # Then delete the folder
@@ -89,7 +128,7 @@ def delete_folder(db: Session, folder_id: int):
         return {"ok": True}
     return {"ok": False, "error": "Folder not found"}
 
-def update_folder(db: Session, folder_id: int, new_name: str):
+def update_folder(db: Session, folder_id, new_name: str):
     folder = db.query(Folder).filter(Folder.id == folder_id).first()
     if folder:
         folder.name = new_name

@@ -10,7 +10,7 @@ import uuid # For potential default UUIDs if needed
 from app.main import app
 from app.db.database import Base, get_db
 # Import models that factories will create
-from app.db.models import User, Folder as FolderModel, Feed as FeedModel 
+from app.db.models import Folder as FolderModel, Feed as FeedModel 
 from sqlalchemy.orm import Session
 
 
@@ -57,14 +57,14 @@ def client(db_session):
 
 
 @pytest.fixture
-def folder_factory(db_session: Session) -> Callable[..., FolderModel]:
-    """Fixture to create Folder models directly in the database."""
-    def _create_folder(name: str = "Test Folder") -> FolderModel:
+def folder_factory(db_session: Session) -> Callable[..., int]:
+    """Fixture to create Folder models directly in the database and return the folder id."""
+    def _create_folder(name: str = "Test Folder") -> int:
         folder = FolderModel(name=name)
         db_session.add(folder)
         db_session.commit()
-        db_session.refresh(folder)
-        return folder
+        folder_id = folder.id  # Extract id before session closes
+        return folder_id
     return _create_folder
 
 
