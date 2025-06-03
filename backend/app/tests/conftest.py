@@ -1,4 +1,11 @@
 # backend/app/tests/conftest.py
+import sys
+import os
+# Always add the backend root (the directory containing 'app') to sys.path
+backend_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
+if backend_root not in sys.path:
+    sys.path.insert(0, backend_root)
+
 import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
@@ -87,6 +94,7 @@ def feed_factory(db_session: Session) -> Callable[..., FeedModel]:
 
         feed = FeedModel(
             title=title,
+            url=feed_url,  # Ensure url is set for uniqueness
             feed_url=feed_url,
             site_url=site_url,
             folder_id=folder_id

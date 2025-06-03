@@ -112,20 +112,11 @@ def create_feed(db: Session, feed: FeedCreate):
         db.commit()
         return db_feed
     except ValueError as e:
+        db.rollback()
         raise e
     except Exception as e:
-        db_feed = Feed(
-            url=feed.url,
-            folder_id=feed.folder_id,
-            title=feed.title or "Untitled",
-            feed_url=feed.url,
-            site_url=feed.url,
-            favicon=None
-        )
-        db.add(db_feed)
-        db.commit()
-        db.refresh(db_feed)
-        return db_feed
+        db.rollback()
+        raise
 
 def get_articles_for_feed(db: Session, feed_id):
     return db.query(Article).filter(Article.feed_id == feed_id).all()
