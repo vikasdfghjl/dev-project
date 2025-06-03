@@ -160,23 +160,4 @@ docker run -d --name rss-frontend -p 80:80 rss-reader-frontend
 
 ---
 
-## 📝 Recent Improvements
-
-- **Backend:**
-  - Pydantic v2 migration, SQLAlchemy deprecation fixes
-  - Robust error handling and health endpoints
-  - Graceful degradation (runs without DB)
-  - Dockerfile and Compose improvements
-- **Frontend:**
-  - API data transformation (image, date fields)
-  - Modern UI, feature-based structure
-  - TypeScript type safety
-  - Comprehensive test scaffolding with Vitest
-  - Bugfixes for images, publish dates, and API redirects
-- **Docs:**
-  - Modernized README with quickstart, troubleshooting, Docker/dev tips
-  - Clear test instructions for both frontend and backend
-
----
-
 For more, see [`backend/README.md`](backend/README.md) and [`frontend/README.md`](frontend/README.md).
