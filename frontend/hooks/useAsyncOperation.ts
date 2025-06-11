@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback } from "react";
 
 export interface UseAsyncOperationReturn<T> {
   data: T | null;
@@ -19,21 +19,25 @@ export const useAsyncOperation = <T = any>(
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const execute = useCallback(async (...args: any[]): Promise<T | null> => {
-    try {
-      setLoading(true);
-      setError(null);
-      const result = await asyncFunction(...args);
-      setData(result);
-      return result;
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'An error occurred';
-      setError(errorMessage);
-      return null;
-    } finally {
-      setLoading(false);
-    }
-  }, [asyncFunction]);
+  const execute = useCallback(
+    async (...args: any[]): Promise<T | null> => {
+      try {
+        setLoading(true);
+        setError(null);
+        const result = await asyncFunction(...args);
+        setData(result);
+        return result;
+      } catch (err) {
+        const errorMessage =
+          err instanceof Error ? err.message : "An error occurred";
+        setError(errorMessage);
+        return null;
+      } finally {
+        setLoading(false);
+      }
+    },
+    [asyncFunction]
+  );
 
   const reset = useCallback(() => {
     setData(null);
@@ -46,6 +50,6 @@ export const useAsyncOperation = <T = any>(
     loading,
     error,
     execute,
-    reset
+    reset,
   };
 };

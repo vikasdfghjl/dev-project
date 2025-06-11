@@ -4,53 +4,53 @@ Database connectivity check script
 Run this before starting the main application to verify database connection
 """
 
-import sys
-import os
 import logging
+import os
+import sys
 from pathlib import Path
 
 # Add the app directory to Python path
 sys.path.insert(0, str(Path(__file__).parent))
 
-from app.db.database import health_check_database, engine
 from app.core.config import settings
+from app.db.database import engine, health_check_database
 
 # Set up logging
 logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
+
 
 def main():
     """Main function to check database connectivity"""
     logger.info("🔍 Starting database connectivity check...")
-    
+
     # Display current configuration (without sensitive data)
     logger.info(f"📋 Database Configuration:")
     db_url = settings.DATABASE_URL
-    if '@' in db_url:
+    if "@" in db_url:
         # Hide password from logs
-        parts = db_url.split('@')
-        user_part = parts[0].split('://')
-        if len(user_part) > 1 and ':' in user_part[1]:
-            user_part[1] = user_part[1].split(':')[0] + ':****'
-        db_url_safe = user_part[0] + '://' + user_part[1] + '@' + parts[1]
+        parts = db_url.split("@")
+        user_part = parts[0].split("://")
+        if len(user_part) > 1 and ":" in user_part[1]:
+            user_part[1] = user_part[1].split(":")[0] + ":****"
+        db_url_safe = user_part[0] + "://" + user_part[1] + "@" + parts[1]
     else:
         db_url_safe = db_url
-    
+
     logger.info(f"   Database URL: {db_url_safe}")
-    
+
     # Check if engine was created
     if engine is None:
         logger.error("❌ Database engine could not be created")
         logger.error("🛑 Application startup will fail")
         return False
-    
+
     # Check database connectivity
     try:
         is_healthy, message = health_check_database()
-        
+
         if is_healthy:
             logger.info("✅ Database connectivity check PASSED")
             logger.info(f"   Status: {message}")
@@ -59,16 +59,17 @@ def main():
             logger.error("❌ Database connectivity check FAILED")
             logger.error(f"   Error: {message}")
             return False
-            
+
     except Exception as e:
         logger.error(f"❌ Unexpected error during database check: {str(e)}")
         return False
 
+
 def print_troubleshooting_guide():
     """Print troubleshooting guide for common database issues"""
-    print("\n" + "="*60)
+    print("\n" + "=" * 60)
     print("🔧 DATABASE CONNECTION TROUBLESHOOTING GUIDE")
-    print("="*60)
+    print("=" * 60)
     print()
     print("1. 🔌 Connection Refused:")
     print("   - Ensure PostgreSQL/database server is running")
@@ -103,11 +104,12 @@ def print_troubleshooting_guide():
     print("📝 Example DATABASE_URL formats:")
     print("   PostgreSQL: postgresql://user:pass@localhost:5432/dbname")
     print("   SQLite: sqlite:///./app.db")
-    print("="*60)
+    print("=" * 60)
+
 
 if __name__ == "__main__":
     success = main()
-    
+
     if not success:
         print_troubleshooting_guide()
         sys.exit(1)

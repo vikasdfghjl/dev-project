@@ -1,6 +1,6 @@
-import React from 'react';
-import type { Feed } from '../../../types';
-import { RssIcon } from '../../shared/icons/RssIcon';
+import React from "react";
+import type { Feed } from "../../../types";
+import { RssIcon } from "../../shared/icons/RssIcon";
 
 interface FeedItemInfoProps {
   feed: Feed;
@@ -8,11 +8,13 @@ interface FeedItemInfoProps {
 
 const FeedItemInfoComponent: React.FC<FeedItemInfoProps> = ({ feed }) => {
   // Simplified onError handler: hides image on error and shows fallback icon.
-  const handleImageError = (e: React.SyntheticEvent<HTMLImageElement, Event>) => {
+  const handleImageError = (
+    e: React.SyntheticEvent<HTMLImageElement, Event>
+  ) => {
     const img = e.currentTarget;
-    img.style.display = 'none';
+    img.style.display = "none";
     const fallbackIcon = img.nextElementSibling as HTMLElement | null;
-    if (fallbackIcon) fallbackIcon.classList.remove('hidden');
+    if (fallbackIcon) fallbackIcon.classList.remove("hidden");
   };
 
   return (
@@ -31,7 +33,9 @@ const FeedItemInfoComponent: React.FC<FeedItemInfoProps> = ({ feed }) => {
       ) : (
         <RssIcon className="h-5 w-5 mr-2.5 text-slate-400 dark:text-slate-500 flex-shrink-0" />
       )}
-      <span className="truncate" title={feed.title}>{feed.title}</span>
+      <span className="truncate" title={feed.title}>
+        {feed.title}
+      </span>
     </div>
   );
 };

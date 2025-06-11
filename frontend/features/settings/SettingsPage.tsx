@@ -1,7 +1,13 @@
-import React, { useState, useEffect } from 'react';
-import type { Feed, Folder, AppSettings, SettingsUpdate } from '../../types';
-import { SettingsHeader, ManageFeedsSection, ManageFoldersSection, ArticleCleanupSection, AutoCleanupSettingsSection } from './components';
-import { rssService } from '../../services';
+import React, { useState, useEffect } from "react";
+import type { Feed, Folder, AppSettings, SettingsUpdate } from "../../types";
+import {
+  SettingsHeader,
+  ManageFeedsSection,
+  ManageFoldersSection,
+  ArticleCleanupSection,
+  AutoCleanupSettingsSection,
+} from "./components";
+import { rssService } from "../../services";
 
 interface SettingsPageProps {
   feeds: Feed[];
@@ -29,7 +35,7 @@ const SettingsPageComponent: React.FC<SettingsPageProps> = ({
   // Settings state
   const [settings, setSettings] = useState<AppSettings | null>(null);
   const [isLoadingSettings, setIsLoadingSettings] = useState<boolean>(true);
-  const [settingsError, setSettingsError] = useState<string>('');
+  const [settingsError, setSettingsError] = useState<string>("");
 
   // Load settings on component mount
   useEffect(() => {
@@ -39,7 +45,7 @@ const SettingsPageComponent: React.FC<SettingsPageProps> = ({
         const appSettings = await rssService.getSettings();
         setSettings(appSettings);
       } catch (err: any) {
-        setSettingsError(err.message || 'Failed to load settings');
+        setSettingsError(err.message || "Failed to load settings");
       } finally {
         setIsLoadingSettings(false);
       }
@@ -52,9 +58,9 @@ const SettingsPageComponent: React.FC<SettingsPageProps> = ({
     try {
       const updatedSettings = await rssService.updateSettings(settingsUpdate);
       setSettings(updatedSettings);
-      setSettingsError('');
+      setSettingsError("");
     } catch (err: any) {
-      setSettingsError(err.message || 'Failed to update settings');
+      setSettingsError(err.message || "Failed to update settings");
       throw err; // Re-throw so components can handle their own error states
     }
   };
@@ -80,15 +86,17 @@ const SettingsPageComponent: React.FC<SettingsPageProps> = ({
           onDeleteFolder={onDeleteFolder}
           onTriggerRenameFolderModal={onRenameFolder}
         />
-        
+
         <ArticleCleanupSection onCleanup={handleArticleCleanup} />
-        
+
         {/* Auto Cleanup Settings */}
         {isLoadingSettings ? (
           <div className="bg-card dark:bg-slate-800 rounded-lg shadow-sm border border-border dark:border-slate-700 p-6">
             <div className="flex items-center justify-center py-8">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-              <span className="ml-3 text-muted-foreground">Loading settings...</span>
+              <span className="ml-3 text-muted-foreground">
+                Loading settings...
+              </span>
             </div>
           </div>
         ) : settingsError ? (
@@ -98,7 +106,7 @@ const SettingsPageComponent: React.FC<SettingsPageProps> = ({
             </div>
           </div>
         ) : settings ? (
-          <AutoCleanupSettingsSection 
+          <AutoCleanupSettingsSection
             settings={settings}
             onUpdateSettings={handleUpdateSettings}
           />

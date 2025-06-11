@@ -1,9 +1,9 @@
-import React from 'react';
-import type { Folder } from '../../../../types/entities';
-import { SettingsSection } from './SettingsSection';
-import { SettingsFolderListItem } from './SettingsFolderListItem';
-import { FolderIcon as AddFolderIcon } from '../../../shared/icons/FolderIcon';
-import { Button } from '../../../shared/ui/Button';
+import React from "react";
+import type { Folder } from "../../../../types/entities";
+import { SettingsSection } from "./SettingsSection";
+import { SettingsFolderListItem } from "./SettingsFolderListItem";
+import { FolderIcon as AddFolderIcon } from "../../../shared/icons/FolderIcon";
+import { Button } from "../../../shared/ui/Button";
 
 interface ManageFoldersSectionProps {
   folders: Folder[];
@@ -30,18 +30,22 @@ const ManageFoldersSectionComponent: React.FC<ManageFoldersSectionProps> = ({
   );
 
   return (
-    <SettingsSection 
-        title="Manage Folders" 
-        actionButton={actionButton}
-        itemCount={folders.length}
-        emptyStateMessage="No folders created yet. Click 'Add Folder' to organize your feeds."
+    <SettingsSection
+      title="Manage Folders"
+      actionButton={actionButton}
+      itemCount={folders.length}
+      emptyStateMessage="No folders created yet. Click 'Add Folder' to organize your feeds."
     >
-      {folders.map((folder) => (
+      {folders.map(folder => (
         <SettingsFolderListItem
           key={folder.id}
           folder={folder}
           onDelete={() => {
-            if (window.confirm(`Are you sure you want to delete the folder "${folder.name}"? Feeds inside will be moved to the root.`)) {
+            if (
+              window.confirm(
+                `Are you sure you want to delete the folder "${folder.name}"? Feeds inside will be moved to the root.`
+              )
+            ) {
               onDeleteFolder(folder.id);
             }
           }}

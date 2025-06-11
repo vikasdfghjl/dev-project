@@ -1,0 +1,45 @@
+# Dependencies
+node_modules/
+*/node_modules/
+
+# Build outputs
+dist/
+build/
+*/dist/
+*/build/
+
+# Generated files
+*.min.js
+*.min.css
+
+# Config files that should not be formatted
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Backend files (handled by Black)
+backend/
+*.py
+
+# Monitoring and logs
+monitoring/
+logs/
+*.log
+
+# Environment files
+.env
+.env.*
+
+# Cache and temporary files
+.cache/
+*.cache
+.temp/
+*.tmp
+
+# Docker files
+Dockerfile
+docker-compose*.yml
+
+# Other config files
+.gitignore
+.secrets.baseline

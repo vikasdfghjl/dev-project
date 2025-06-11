@@ -1,0 +1,43 @@
+repos:
+  # Essential code quality checks
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: trailing-whitespace
+        exclude: ^frontend/node_modules/
+      - id: end-of-file-fixer
+        exclude: ^frontend/node_modules/
+      - id: check-yaml
+        exclude: ^(frontend/node_modules/|docker-compose\.ya?ml)
+      - id: check-added-large-files
+        args: ['--maxkb=1000']
+      - id: check-merge-conflict
+
+  # Python - Black formatter (most important for consistency)
+  - repo: https://github.com/psf/black
+    rev: 25.1.0
+    hooks:
+      - id: black
+        language_version: python3
+        files: ^backend/.*\.py$
+        args: [--line-length=88]
+  # Python - Import sorting
+  - repo: https://github.com/pycqa/isort
+    rev: 6.0.1
+    hooks:
+      - id: isort
+        files: ^backend/.*\.py$
+        args: ["--profile", "black"]
+
+  # Frontend - Prettier formatter for TypeScript, React, CSS, JSON, Markdown
+  - repo: https://github.com/pre-commit/mirrors-prettier
+    rev: v4.0.0-alpha.8
+    hooks:
+      - id: prettier
+        files: ^frontend/.*\.(ts|tsx|js|jsx|json|css|scss|html|md)$
+        exclude: ^frontend/(node_modules|dist)/
+        args: [--write]
+
+# Global configuration
+default_stages: [pre-commit]
+fail_fast: false

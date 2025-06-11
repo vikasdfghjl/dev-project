@@ -1,14 +1,25 @@
 # SQLAlchemy models for feeds, folders, articles
-from sqlalchemy import Column, Integer, String, ForeignKey, Text, Boolean, DateTime, UniqueConstraint
+from app.db.database import Base
+from sqlalchemy import (
+    Boolean,
+    Column,
+    DateTime,
+    ForeignKey,
+    Integer,
+    String,
+    Text,
+    UniqueConstraint,
+)
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
-from app.db.database import Base
+
 
 class Folder(Base):
     __tablename__ = "folders"
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String, unique=True, index=True)
     feeds = relationship("Feed", back_populates="folder")
+
 
 class Feed(Base):
     __tablename__ = "feeds"
@@ -22,6 +33,7 @@ class Feed(Base):
     folder_id = Column(Integer, ForeignKey("folders.id"), nullable=True)
     folder = relationship("Folder", back_populates="feeds")
     articles = relationship("Article", back_populates="feed")
+
 
 class Article(Base):
     __tablename__ = "articles"
@@ -41,9 +53,8 @@ class Article(Base):
     feed = relationship("Feed", back_populates="articles")
 
     # Add unique constraint for (feed_id, guid) to ensure uniqueness within feed
-    __table_args__ = (
-        UniqueConstraint('feed_id', 'guid', name='_feed_guid_uc'),
-    )
+    __table_args__ = (UniqueConstraint("feed_id", "guid", name="_feed_guid_uc"),)
+
 
 class Settings(Base):
     __tablename__ = "settings"
