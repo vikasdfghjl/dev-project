@@ -1,9 +1,6 @@
 import React, { useState } from "react";
-import { PlusIcon } from "../shared/icons/PlusIcon";
-import { RssIcon } from "../shared/icons/RssIcon";
+import { PlusIcon, RssIcon, Modal, Button } from "../shared";
 import type { Folder } from "../../types/entities";
-import { Modal } from "../shared/components/Modal";
-import { Button } from "../shared/ui/Button";
 import { rssApiService } from "../../services/api";
 
 interface AddFeedModalProps {

@@ -4,8 +4,7 @@ import type {
   ArticleFilterOption,
   ArticleViewStyle,
 } from "../../types/entities";
-import { ListViewIcon } from "../shared/icons/ListViewIcon";
-import { CardViewIcon } from "../shared/icons/CardViewIcon";
+import { ListViewIcon, CardViewIcon } from "../shared";
 
 interface ArticleListHeaderProps {
   feedTitle: string;

@@ -7,8 +7,7 @@ import type {
   ArticleViewStyle,
 } from "../../types/entities";
 import { ArticleList } from "../articles/ArticleList";
-import { LoadingSpinner } from "../shared/components/LoadingSpinner";
-import { RssIcon } from "../shared/icons/RssIcon";
+import { LoadingSpinner, RssIcon } from "../shared";
 import { ALL_ARTICLES_VIEW_ID } from "../../constants";
 
 interface MainContentAreaProps {

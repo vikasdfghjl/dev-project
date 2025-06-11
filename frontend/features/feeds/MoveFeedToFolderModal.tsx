@@ -1,8 +1,6 @@
 import React, { useState } from "react";
 import type { Feed, Folder } from "../../types/entities";
-import { EditIcon } from "../shared/icons/EditIcon";
-import { Modal } from "../shared/components/Modal";
-import { Button } from "../shared/ui/Button";
+import { EditIcon, Modal, Button } from "../shared";
 
 interface MoveFeedToFolderModalProps {
   feed: Feed;

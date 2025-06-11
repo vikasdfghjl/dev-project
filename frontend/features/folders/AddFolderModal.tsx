@@ -1,8 +1,5 @@
 import React, { useState } from "react";
-import { FolderIcon } from "../shared/icons/FolderIcon";
-import { PlusIcon } from "../shared/icons/PlusIcon";
-import { Modal } from "../shared/components/Modal";
-import { Button } from "../shared/ui/Button";
+import { FolderIcon, PlusIcon, Modal, Button } from "../shared";
 
 interface AddFolderModalProps {
   onClose: () => void;

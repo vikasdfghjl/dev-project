@@ -1,6 +1,6 @@
 import React from "react";
 import type { Article } from "../../types/entities";
-import { ChevronRightIcon } from "../shared/icons/ChevronRightIcon";
+import { ChevronRightIcon } from "../shared";
 import { formatDate } from "../../utils/dateUtils";
 
 interface ArticleListItemProps {

@@ -1,9 +1,5 @@
 import React, { useState } from "react";
-import { PlusIcon } from "../shared/icons/PlusIcon";
-import { RssIcon } from "../shared/icons/RssIcon";
-import { RefreshIcon } from "../shared/icons/RefreshIcon";
-import { BookIcon } from "../shared/icons/BookIcon";
-import { Button } from "../shared/ui/Button";
+import { PlusIcon, RssIcon, RefreshIcon, BookIcon, Button } from "../shared";
 
 interface HeaderProps {
   onAddFeedClick: () => void;

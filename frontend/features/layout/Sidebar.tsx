@@ -2,8 +2,7 @@ import React from "react";
 import type { Feed, Folder } from "../../types/entities";
 import { FolderItem } from "../folders/components/FolderItem";
 import { FeedItem } from "../feeds/components/FeedItem";
-import { LoadingSpinner } from "../shared/components/LoadingSpinner";
-import { BookOpenIcon } from "../shared/icons/BookOpenIcon";
+import { LoadingSpinner, BookOpenIcon } from "../shared";
 import { ALL_ARTICLES_VIEW_ID } from "../../constants";
 
 import { SidebarHeader } from "./components/SidebarHeader";

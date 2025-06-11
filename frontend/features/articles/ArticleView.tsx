@@ -1,7 +1,6 @@
 import React from "react";
 import type { Article } from "../../types/entities";
-import { ExternalLinkIcon } from "../shared/icons/ExternalLinkIcon";
-import { ChevronLeftIcon } from "../shared/icons/ChevronLeftIcon";
+import { ExternalLinkIcon, ChevronLeftIcon } from "../shared";
 import { ArticleViewHeader } from "./ArticleViewHeader";
 
 interface ArticleViewProps {
