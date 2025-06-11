@@ -1,7 +1,5 @@
 import React from "react";
-import { EditIcon } from "../../shared/icons/EditIcon";
-import { TrashIcon } from "../../shared/icons/TrashIcon";
-import { Button } from "../../shared/ui/Button";
+import { EditIcon, TrashIcon, Button } from "../../shared";
 
 interface FolderItemActionsProps {
   folderName: string;

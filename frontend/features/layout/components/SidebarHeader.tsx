@@ -1,5 +1,5 @@
 import React from "react";
-import { FolderIcon } from "../../shared/icons/FolderIcon";
+import { FolderIcon } from "../../shared";
 
 interface SidebarHeaderProps {
   isCollapsed: boolean;

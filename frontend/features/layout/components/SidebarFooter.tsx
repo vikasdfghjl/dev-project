@@ -1,10 +1,12 @@
 import React from "react";
-import { PlusIcon } from "../../shared/icons/PlusIcon";
-import { GearIcon } from "../../shared/icons/GearIcon";
-import { BookIcon } from "../../shared/icons/BookIcon";
-import { ChevronDoubleLeftIcon } from "../../shared/icons/ChevronDoubleLeftIcon";
-import { ChevronDoubleRightIcon } from "../../shared/icons/ChevronDoubleRightIcon";
-import { Button } from "../../shared/ui/Button";
+import {
+  PlusIcon,
+  GearIcon,
+  BookIcon,
+  ChevronDoubleLeftIcon,
+  ChevronDoubleRightIcon,
+  Button,
+} from "../../shared";
 
 interface SidebarFooterProps {
   isCollapsed: boolean;

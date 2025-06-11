@@ -1,5 +1,5 @@
 import React from "react";
-import { BookOpenIcon } from "../../shared/icons/BookOpenIcon";
+import { BookOpenIcon } from "../../shared";
 import type { ArticleFilterOption } from "../../../types/entities";
 
 interface ArticleListEmptyStateProps {

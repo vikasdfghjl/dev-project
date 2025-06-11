@@ -1,8 +1,6 @@
 import React from "react";
 import type { Folder } from "../../../types";
-import { FolderIcon } from "../../shared/icons/FolderIcon";
-import { ChevronDownIcon } from "@/features/shared/icons/ChevronDownIcon";
-import { ChevronRightIcon } from "@/features/shared/icons/ChevronRightIcon";
+import { FolderIcon, ChevronDownIcon, ChevronRightIcon } from "../../shared";
 
 interface FolderItemHeaderProps {
   folder: Folder;

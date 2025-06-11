@@ -1,6 +1,6 @@
 import React from "react";
 import type { Feed } from "../../../types";
-import { RssIcon } from "../../shared/icons/RssIcon";
+import { RssIcon } from "../../shared";
 
 interface FeedItemInfoProps {
   feed: Feed;

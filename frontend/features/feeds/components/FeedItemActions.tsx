@@ -1,7 +1,5 @@
 import React from "react";
-import { TrashIcon } from "../../shared/icons/TrashIcon";
-import { EditIcon } from "../../shared/icons/EditIcon";
-import { Button } from "../../shared/ui/Button";
+import { TrashIcon, EditIcon, Button } from "../../shared";
 
 interface FeedItemActionsProps {
   feedTitle: string;

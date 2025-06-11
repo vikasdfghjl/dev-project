@@ -1,6 +1,5 @@
 import React from "react";
-import { PlusIcon } from "../../shared/icons/PlusIcon";
-import { FolderIcon } from "../../shared/icons/FolderIcon";
+import { PlusIcon, FolderIcon } from "../../shared";
 
 interface SidebarEmptyStateProps {
   onAddFeedClick: () => void;
