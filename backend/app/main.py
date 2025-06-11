@@ -4,7 +4,9 @@ from fastapi.responses import JSONResponse
 from app.api.v1.api import router as api_v1_router
 from app.db.database import Base, engine, health_check_database
 from app.services.background_tasks import background_manager
+from app.api.v1.endpoints.metrics import increment_http_requests
 import logging
+import time
 
 # Application version
 APP_VERSION = "1.0.0"
@@ -37,6 +39,26 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Add metrics middleware
+@app.middleware("http")
+async def metrics_middleware(request, call_next):
+    """Middleware to track HTTP request metrics"""
+    start_time = time.time()
+    
+    response = await call_next(request)
+    
+    # Calculate request duration
+    duration = time.time() - start_time
+    
+    # Track HTTP requests
+    increment_http_requests(
+        method=request.method,
+        endpoint=request.url.path,
+        status_code=response.status_code
+    )
+    
+    return response
 
 # Add health check endpoint
 @app.get("/health")
