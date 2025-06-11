@@ -123,6 +123,28 @@ pytest
 
   - Uses `DATABASE_URL` from `.env` (see `alembic.ini` and `env.py`)
 
+## API Documentation
+
+FastAPI automatically generates interactive API documentation:
+
+| Endpoint            | Description                                    |
+|---------------------|------------------------------------------------|
+| `/docs`             | Swagger UI - Interactive API documentation    |
+| `/redoc`            | ReDoc - Alternative documentation interface    |
+| `/openapi.json`     | OpenAPI specification in JSON format          |
+
+**Access the documentation:**
+
+- Swagger UI: `http://localhost:8000/docs`
+- ReDoc: `http://localhost:8000/redoc`
+
+The Swagger UI provides an interactive interface where you can:
+
+- View all available endpoints and their schemas
+- Test API endpoints directly from the browser
+- See request/response examples
+- View authentication requirements
+
 ## API Endpoints
 
 | Method | Endpoint                              | Description                                 |

@@ -32,10 +32,10 @@ export interface AppState {
   isLoadingAllArticles: boolean; // Loading state for all articles
 
   error: string | null;
-
   modalState: ModalState;
 
   isSettingsViewOpen: boolean;
+  isDocsViewOpen: boolean; // New documentation view state
   isSidebarCollapsed: boolean;
 
   articleSortOption: ArticleSortOption;
@@ -84,6 +84,8 @@ export type AppAction =
   | { type: "CLOSE_MODAL"; payload: keyof ModalState }
   | { type: "TOGGLE_SETTINGS_VIEW" }
   | { type: "CLOSE_SETTINGS_VIEW" }
+  | { type: "TOGGLE_DOCS_VIEW" }
+  | { type: "CLOSE_DOCS_VIEW" }
   | { type: "TOGGLE_SIDEBAR" }
   | { type: "SET_ARTICLE_SORT_OPTION"; payload: ArticleSortOption }
   | { type: "SET_ARTICLE_FILTER_OPTION"; payload: ArticleFilterOption }

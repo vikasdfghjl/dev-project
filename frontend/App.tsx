@@ -7,6 +7,7 @@ import { ArticleView } from "./features/articles/ArticleView";
 import { AddFeedModal, MoveFeedToFolderModal } from "./features/feeds";
 import { AddFolderModal, RenameFolderModal } from "./features/folders";
 import { SettingsPage } from "./features/settings";
+import { DocumentationPage } from "./docs";
 import type { Feed, Article } from "./types";
 import { ALL_ARTICLES_VIEW_ID } from "./constants";
 import { rssService } from "./services";
@@ -128,12 +129,23 @@ const AppContent: React.FC = () => {
       });
     }
   };
-
   // Fix for 'never' type error
   const selectedArticle: Article | null = state.selectedArticle;
 
+  // If docs view is open, render only the documentation page
+  if (state.isDocsViewOpen) {
+    return (
+      <ErrorBoundary>
+        <DocumentationPage
+          onClose={() => dispatch({ type: "CLOSE_DOCS_VIEW" })}
+        />
+      </ErrorBoundary>
+    );
+  }
+
   return (
     <div className="flex flex-col h-screen bg-muted dark:bg-slate-900 text-foreground dark:text-slate-100 antialiased">
+      {" "}
       <ErrorBoundary>
         <Header
           onAddFeedClick={() =>
@@ -143,6 +155,7 @@ const AppContent: React.FC = () => {
             })
           }
           onRefreshFeeds={handleRefreshFeeds}
+          onOpenDocsClick={() => dispatch({ type: "TOGGLE_DOCS_VIEW" })}
         />
       </ErrorBoundary>
       <div className="flex flex-1 overflow-hidden">
@@ -183,6 +196,7 @@ const AppContent: React.FC = () => {
             onOpenSettingsClick={() =>
               dispatch({ type: "TOGGLE_SETTINGS_VIEW" })
             }
+            onOpenDocsClick={() => dispatch({ type: "TOGGLE_DOCS_VIEW" })}
             isCollapsed={state.isSidebarCollapsed}
             onToggleCollapse={() => dispatch({ type: "TOGGLE_SIDEBAR" })}
           />
@@ -217,8 +231,7 @@ const AppContent: React.FC = () => {
                 </button>
               </div>
             </div>
-          )}
-
+          )}{" "}
           {state.isSettingsViewOpen ? (
             <ErrorBoundary>
               <SettingsPage

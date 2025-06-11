@@ -2,16 +2,19 @@ import React, { useState } from "react";
 import { PlusIcon } from "../shared/icons/PlusIcon";
 import { RssIcon } from "../shared/icons/RssIcon";
 import { RefreshIcon } from "../shared/icons/RefreshIcon";
+import { BookIcon } from "../shared/icons/BookIcon";
 import { Button } from "../shared/ui/Button";
 
 interface HeaderProps {
   onAddFeedClick: () => void;
   onRefreshFeeds: () => Promise<void>;
+  onOpenDocsClick: () => void;
 }
 
 const HeaderComponent: React.FC<HeaderProps> = ({
   onAddFeedClick,
   onRefreshFeeds,
+  onOpenDocsClick,
 }) => {
   const [isRefreshing, setIsRefreshing] = useState(false);
 
@@ -32,8 +35,18 @@ const HeaderComponent: React.FC<HeaderProps> = ({
           <h1 className="text-2xl font-bold text-foreground dark:text-slate-100">
             RSS Aggregator Pro
           </h1>
-        </div>
+        </div>{" "}
         <div className="flex items-center gap-2">
+          <Button
+            onClick={onOpenDocsClick}
+            variant="ghost"
+            size="md"
+            title="Documentation"
+            leftIcon={<BookIcon className="h-5 w-5" />}
+            aria-label="Open FluxReader documentation"
+          >
+            Docs
+          </Button>
           <Button
             onClick={handleRefresh}
             disabled={isRefreshing}
