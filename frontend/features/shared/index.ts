@@ -20,5 +20,6 @@ export * from "./icons/FolderIcon";
 export * from "./icons/GearIcon";
 export * from "./icons/ListViewIcon";
 export * from "./icons/PlusIcon";
+export * from "./icons/RefreshIcon";
 export * from "./icons/RssIcon";
 export * from "./icons/TrashIcon";
