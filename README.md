@@ -1,13 +1,13 @@
-# RSS Reader App
+# FluxReader
 
 A modern, full-stack RSS reader application with a FastAPI backend, PostgreSQL database, and a
 React (TypeScript) frontend.
 Organize, fetch, and read articles from your favorite feeds with robust folder management and a
 user-friendly interface.
 
-![RSS Reader Screenshot](docs/screenshot.png)
+![FluxReader Screenshot](docs/screenshot.png)
 
-[![Backend Tests](https://github.com/your-org/rss-reader/actions/workflows/backend-tests.yml/badge.svg)](https://github.com/your-org/rss-reader/actions)
+[![Backend Tests](https://github.com/your-org/fluxreader/actions/workflows/backend-tests.yml/badge.svg)](https://github.com/your-org/fluxreader/actions)
 
 [![Docker Compose Ready](https://img.shields.io/badge/docker--compose-ready-blue)](https://docs.docker.com/compose/)
 
@@ -112,18 +112,18 @@ docker-compose down -v
 
 ```sh
 cd backend
-docker build -t rss-reader-backend .
-docker run -d --name rss-backend -p 8000:8000 \
+docker build -t fluxreader-backend .
+docker run -d --name fluxreader-backend -p 8000:8000 \
   -e DATABASE_URL=postgresql://username:password@host:5432/database_name \
-  rss-reader-backend
+  fluxreader-backend
 ```
 
 #### Frontend Container
 
 ```sh
 cd frontend
-docker build -t rss-reader-frontend .
-docker run -d --name rss-frontend -p 80:80 rss-reader-frontend
+docker build -t fluxreader-frontend .
+docker run -d --name fluxreader-frontend -p 80:80 fluxreader-frontend
 ```
 
 ---

@@ -1,7 +1,7 @@
 [project]
-name = "backend"
+name = "fluxreader-backend"
 version = "0.1.0"
-description = "FastAPI backend for RSS feed management"
+description = "FastAPI backend for FluxReader RSS feed management"
 requires-python = ">=3.10"
 dependencies = [
     "fastapi",

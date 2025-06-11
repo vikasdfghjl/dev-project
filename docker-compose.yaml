@@ -1,7 +1,7 @@
 services:
   postgres:
     image: postgres:17-alpine3.21
-    container_name: rss-postgres
+    container_name: fluxreader-postgres
     restart: unless-stopped
     env_file:
       - ./rss.env
@@ -10,20 +10,20 @@ services:
     ports:
       - "5432:5432"
     networks:
-      - rss-network
+      - fluxreader-network
 
   backend:
     build:
       context: ./backend
       dockerfile: Dockerfile
-    container_name: rss-backend
+    container_name: fluxreader-backend
     restart: unless-stopped
     env_file:
       - ./rss.env
     ports:
       - "8000:8000"
     networks:
-      - rss-network
+      - fluxreader-network
     depends_on:
       - postgres
     volumes:
@@ -35,12 +35,12 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile
-    container_name: rss-frontend
+    container_name: fluxreader-frontend
     restart: unless-stopped
     ports:
       - "3000:80"
     networks:
-      - rss-network
+      - fluxreader-network
     depends_on:
       - backend
     env_file:
@@ -48,12 +48,12 @@ services:
 
 # Networks
 networks:
-  rss-network:
+  fluxreader-network:
     driver: bridge
-    name: rss-network
+    name: fluxreader-network
 
 # Volumes
 volumes:
   postgres_data:
     driver: local
-    name: rss-postgres-data
+    name: fluxreader-postgres-data
