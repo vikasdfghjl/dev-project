@@ -37,7 +37,8 @@ npm install
 
 ### 3. Configure environment
 
-Create a `.env.local` file in the frontend directory if you need to override API URLs or set API keys. Example:
+Create a `.env.local` file in the frontend directory if you need to override API URLs or set API
+keys. Example:
 
 ```env
 VITE_API_URL=http://localhost:8000/api/v1
@@ -65,7 +66,9 @@ npm run preview
 
 ## Running Tests
 
-This project uses [Vitest](https://vitest.dev/) and [@testing-library/react](https://testing-library.com/docs/react-testing-library/intro/) for frontend unit and integration tests.
+This project uses [Vitest](https://vitest.dev/) and
+[@testing-library/react](https://testing-library.com/docs/react-testing-library/intro/) for frontend
+unit and integration tests.
 
 To run all tests:
 
@@ -79,8 +82,8 @@ To run tests in watch mode (auto-restart on file changes):
 npx vitest
 ```
 
-Test files are located in the `__tests__` directory at the root of the `frontend` folder. All test utilities are configured in `setupTests.ts`.
-
+Test files are located in the `__tests__` directory at the root of the `frontend` folder. All test
+utilities are configured in `setupTests.ts`.
 
 If you add new test files, use the `.test.tsx` or `.test.ts` suffix.
 

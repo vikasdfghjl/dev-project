@@ -1,9 +1,8 @@
-
-import React from 'react';
-import type { Folder } from '../../../../types';
-import { FolderIcon } from '../../../shared/icons/FolderIcon';
-import { EditIcon } from '../../../shared/icons/EditIcon';
-import { TrashIcon } from '../../../shared/icons/TrashIcon';
+import React from "react";
+import type { Folder } from "../../../../types";
+import { FolderIcon } from "../../../shared/icons/FolderIcon";
+import { EditIcon } from "../../../shared/icons/EditIcon";
+import { TrashIcon } from "../../../shared/icons/TrashIcon";
 
 interface SettingsFolderListItemProps {
   folder: Folder;
@@ -11,12 +10,17 @@ interface SettingsFolderListItemProps {
   onRename: () => void;
 }
 
-const SettingsFolderListItemComponent: React.FC<SettingsFolderListItemProps> = ({ folder, onDelete, onRename }) => {
+const SettingsFolderListItemComponent: React.FC<
+  SettingsFolderListItemProps
+> = ({ folder, onDelete, onRename }) => {
   return (
     <li className="flex items-center justify-between p-3 bg-muted/50 dark:bg-slate-700/30 rounded-md hover:bg-muted dark:hover:bg-slate-700/60 transition-colors">
       <div className="flex items-center min-w-0 mr-4">
         <FolderIcon className="h-5 w-5 mr-3 text-primary dark:text-primary-dark flex-shrink-0" />
-        <p className="text-sm font-medium text-foreground dark:text-slate-200 truncate" title={folder.name}>
+        <p
+          className="text-sm font-medium text-foreground dark:text-slate-200 truncate"
+          title={folder.name}
+        >
           {folder.name}
         </p>
       </div>
@@ -41,4 +45,6 @@ const SettingsFolderListItemComponent: React.FC<SettingsFolderListItemProps> = (
     </li>
   );
 };
-export const SettingsFolderListItem = React.memo(SettingsFolderListItemComponent);
+export const SettingsFolderListItem = React.memo(
+  SettingsFolderListItemComponent
+);

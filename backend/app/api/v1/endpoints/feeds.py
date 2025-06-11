@@ -1,15 +1,18 @@
 # Feed endpoints
-from fastapi import APIRouter, Depends, status, HTTPException, Request, Body
-from sqlalchemy.orm import Session
-from app.db import crud, models, database
-from app.schemas import feed as feed_schemas, article as article_schemas
-from app.services.feed_parser import fetch_and_save_articles_for_feed
-import httpx
-import feedparser
 import uuid
+
+import feedparser
+import httpx
+from app.db import crud, database, models
+from app.schemas import article as article_schemas
+from app.schemas import feed as feed_schemas
+from app.services.feed_parser import fetch_and_save_articles_for_feed
+from fastapi import APIRouter, Body, Depends, HTTPException, Request, status
 from sqlalchemy.exc import IntegrityError
+from sqlalchemy.orm import Session
 
 router = APIRouter()
+
 
 @router.post("/", response_model=feed_schemas.Feed, status_code=status.HTTP_201_CREATED)
 def create_feed(feed: feed_schemas.FeedCreate, db: Session = Depends(database.get_db)):
@@ -22,19 +25,32 @@ def create_feed(feed: feed_schemas.FeedCreate, db: Session = Depends(database.ge
     except IntegrityError as e:
         db.rollback()  # Rollback before querying
         # Try to find the existing feed and return its details
-        existing_feed = db.query(models.Feed).filter(models.Feed.url == feed.url).first()
+        existing_feed = (
+            db.query(models.Feed).filter(models.Feed.url == feed.url).first()
+        )
         if existing_feed:
             from app.schemas.feed import Feed as FeedSchema
+
             feed_data = FeedSchema.model_validate(existing_feed)
             raise HTTPException(
                 status_code=400,
                 detail={
                     "message": "This feed source already exists!!.",
-                    "existingFeed": feed_data.model_dump()
-                }
+                    "existingFeed": feed_data.model_dump(),
+                },
             )
         # If for some reason the feed is not found, return a message but do not include None for existingFeed
-        raise HTTPException(status_code=400, detail={"message": "This feed source already exists!!.", "existingFeed": {"url": feed.url, "id": None, "title": feed.title or ""}})
+        raise HTTPException(
+            status_code=400,
+            detail={
+                "message": "This feed source already exists!!.",
+                "existingFeed": {
+                    "url": feed.url,
+                    "id": None,
+                    "title": feed.title or "",
+                },
+            },
+        )
     except ValueError as e:
         db.rollback()
         raise HTTPException(status_code=400, detail=f"Error parsing feed: {e}")
@@ -42,9 +58,11 @@ def create_feed(feed: feed_schemas.FeedCreate, db: Session = Depends(database.ge
         db.rollback()
         raise HTTPException(status_code=400, detail=str(e))
 
+
 @router.get("/", response_model=list[feed_schemas.Feed])
 def read_feeds(db: Session = Depends(database.get_db)):
     return crud.get_feeds(db)
+
 
 @router.delete("/{feed_id}")
 def delete_feed(feed_id: str, db: Session = Depends(database.get_db)):
@@ -55,11 +73,18 @@ def delete_feed(feed_id: str, db: Session = Depends(database.get_db)):
         except ValueError:
             feed_key = uuid.UUID(feed_id)
     except ValueError:
-        raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail="Invalid UUID format")
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail="Invalid UUID format",
+        )
     result = crud.delete_feed(db, feed_key)
     if result.get("ok"):
         return {"message": "Feed deleted successfully"}
-    raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=result.get("error", "Feed not found"))
+    raise HTTPException(
+        status_code=status.HTTP_404_NOT_FOUND,
+        detail=result.get("error", "Feed not found"),
+    )
+
 
 @router.get("/{feed_id}/articles/", response_model=list[article_schemas.Article])
 def get_articles_for_feed(feed_id: str, db: Session = Depends(database.get_db)):
@@ -69,11 +94,15 @@ def get_articles_for_feed(feed_id: str, db: Session = Depends(database.get_db)):
         except ValueError:
             feed_key = uuid.UUID(feed_id)
     except ValueError:
-        raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail="Invalid UUID format")
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail="Invalid UUID format",
+        )
     feed = db.query(models.Feed).filter_by(id=feed_key).first()
     if not feed:
         raise HTTPException(status_code=404, detail="Feed not found")
     return crud.get_articles_for_feed(db, feed_key)
+
 
 @router.post("/{feed_id}/refresh")
 def refresh_feed(feed_id: str, db: Session = Depends(database.get_db)):
@@ -83,13 +112,19 @@ def refresh_feed(feed_id: str, db: Session = Depends(database.get_db)):
         except ValueError:
             feed_key = uuid.UUID(feed_id)
     except ValueError:
-        raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail="Invalid UUID format")
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail="Invalid UUID format",
+        )
     feed = db.query(models.Feed).filter_by(id=feed_key).first()
     if not feed:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Feed not found")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Feed not found"
+        )
     result = fetch_and_save_articles_for_feed(feed, db)
     db.refresh(feed)
     return feed
+
 
 @router.post("/parse-title")
 async def parse_feed_title(request: Request):
@@ -99,10 +134,12 @@ async def parse_feed_title(request: Request):
         raise HTTPException(status_code=400, detail="URL is required")
     try:
         from app.services.feed_parser import fetch_feed_title_and_url
+
         result = fetch_feed_title_and_url(url)
         return result
     except Exception as e:
         raise HTTPException(status_code=400, detail=f"Could not fetch feed title: {e}")
+
 
 # Add the fetchFeedTitle endpoint that tests expect
 @router.post("/fetchFeedTitle")
@@ -113,6 +150,7 @@ async def fetch_feed_title(request: Request):
         raise HTTPException(status_code=400, detail="URL is required")
     try:
         from app.services.feed_parser import fetch_feed_title_and_url
+
         result = fetch_feed_title_and_url(url)
         # Ensure result is a dict with 'title' and 'url' keys
         if not isinstance(result, dict):
@@ -125,20 +163,26 @@ async def fetch_feed_title(request: Request):
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
+
 @router.patch("/{feed_id}/move", response_model=feed_schemas.Feed)
-def move_feed_to_folder(feed_id: str, data: dict = Body(...), db: Session = Depends(database.get_db)):
+def move_feed_to_folder(
+    feed_id: str, data: dict = Body(...), db: Session = Depends(database.get_db)
+):
     try:
         try:
             feed_key = int(feed_id)
         except ValueError:
             feed_key = uuid.UUID(feed_id)
     except ValueError:
-        raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail="Invalid UUID format")
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail="Invalid UUID format",
+        )
     target_folder_id = data.get("folder_id") or data.get("target_folder_id")
     feed = db.query(models.Feed).filter_by(id=feed_key).first()
     if not feed:
         raise HTTPException(status_code=404, detail="Feed not found")
-    if target_folder_id is not None and target_folder_id != '':
+    if target_folder_id is not None and target_folder_id != "":
         try:
             try:
                 folder_key = int(target_folder_id)
@@ -156,8 +200,11 @@ def move_feed_to_folder(feed_id: str, data: dict = Body(...), db: Session = Depe
     db.refresh(feed)
     return feed
 
+
 @router.post("/cleanup-articles")
-def cleanup_old_articles(data: dict = Body(...), db: Session = Depends(database.get_db)):
+def cleanup_old_articles(
+    data: dict = Body(...), db: Session = Depends(database.get_db)
+):
     days = data.get("days", 28)  # Default to 28 days
     if days not in [7, 14, 28]:
         raise HTTPException(status_code=400, detail="Days must be 7, 14, or 28")

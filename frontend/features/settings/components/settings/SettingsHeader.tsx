@@ -1,13 +1,14 @@
-
-import React from 'react';
-import { ChevronLeftIcon } from '../../../shared/icons/ChevronLeftIcon';
-import { GearIcon } from '../../../shared/icons/GearIcon';
+import React from "react";
+import { ChevronLeftIcon } from "../../../shared/icons/ChevronLeftIcon";
+import { GearIcon } from "../../../shared/icons/GearIcon";
 
 interface SettingsHeaderProps {
   onCloseSettings: () => void;
 }
 
-const SettingsHeaderComponent: React.FC<SettingsHeaderProps> = ({ onCloseSettings }) => {
+const SettingsHeaderComponent: React.FC<SettingsHeaderProps> = ({
+  onCloseSettings,
+}) => {
   return (
     <div className="mb-8 max-w-4xl mx-auto">
       <button
@@ -19,7 +20,9 @@ const SettingsHeaderComponent: React.FC<SettingsHeaderProps> = ({ onCloseSetting
       </button>
       <div className="flex items-center space-x-3">
         <GearIcon className="w-8 h-8 text-foreground dark:text-slate-200" />
-        <h1 className="text-3xl font-bold text-foreground dark:text-slate-100">Settings</h1>
+        <h1 className="text-3xl font-bold text-foreground dark:text-slate-100">
+          Settings
+        </h1>
       </div>
       <p className="mt-1 text-muted-foreground dark:text-slate-400">
         Manage your feed sources and folders.

@@ -11,21 +11,27 @@ Simple guide to create monitoring dashboards in Grafana.
 ## Basic RSS Reader Queries
 
 ### Service Status
+
 ```promql
 up{job="rss-backend"}
 ```
+
 Shows if your RSS Reader is running (1 = up, 0 = down)
 
 ### Response Time
+
 ```promql
 prometheus_http_request_duration_seconds{job="rss-backend"}
 ```
+
 Shows how fast your RSS Reader responds
 
 ### Request Rate
+
 ```promql
 rate(prometheus_http_requests_total{job="rss-backend"}[5m])
 ```
+
 Shows requests per second
 
 ## Dashboard Tips

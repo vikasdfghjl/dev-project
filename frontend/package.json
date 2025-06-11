@@ -6,7 +6,9 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,css,md}\" --ignore-path ../.prettierignore",
+    "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,json,css,md}\" --ignore-path ../.prettierignore"
   },
   "dependencies": {
     "react": "^19.1.0",
@@ -19,6 +21,7 @@
     "@types/react": "^19.1.6",
     "@types/react-dom": "^19.1.5",
     "jsdom": "^26.1.0",
+    "prettier": "^3.2.5",
     "typescript": "~5.7.2",
     "vite": "^6.2.0",
     "vitest": "^3.1.4"

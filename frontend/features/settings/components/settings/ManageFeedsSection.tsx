@@ -1,9 +1,9 @@
-import React from 'react';
-import type { Feed, Folder } from '../../../../types/entities';
-import { SettingsSection } from './SettingsSection';
-import { SettingsFeedListItem } from './SettingsFeedListItem';
-import { PlusIcon } from '../../../shared/icons/PlusIcon';
-import { Button } from '../../../shared/ui/Button';
+import React from "react";
+import type { Feed, Folder } from "../../../../types/entities";
+import { SettingsSection } from "./SettingsSection";
+import { SettingsFeedListItem } from "./SettingsFeedListItem";
+import { PlusIcon } from "../../../shared/icons/PlusIcon";
+import { Button } from "../../../shared/ui/Button";
 
 interface ManageFeedsSectionProps {
   feeds: Feed[];
@@ -32,19 +32,23 @@ const ManageFeedsSectionComponent: React.FC<ManageFeedsSectionProps> = ({
   );
 
   return (
-    <SettingsSection 
-        title="Manage Feeds" 
-        actionButton={actionButton}
-        itemCount={feeds.length}
-        emptyStateMessage="No feeds added yet. Click 'Add Feed' to get started."
+    <SettingsSection
+      title="Manage Feeds"
+      actionButton={actionButton}
+      itemCount={feeds.length}
+      emptyStateMessage="No feeds added yet. Click 'Add Feed' to get started."
     >
-      {feeds.map((feed) => (
+      {feeds.map(feed => (
         <SettingsFeedListItem
           key={feed.id}
           feed={feed}
           onDelete={() => {
-            if (window.confirm(`Are you sure you want to delete the feed "${feed.title}"?`)) {
-                onDeleteFeed(feed.id);
+            if (
+              window.confirm(
+                `Are you sure you want to delete the feed "${feed.title}"?`
+              )
+            ) {
+              onDeleteFeed(feed.id);
             }
           }}
           onMove={() => onTriggerMoveFeedModal(feed)}

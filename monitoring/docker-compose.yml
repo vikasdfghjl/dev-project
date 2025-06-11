@@ -1,12 +1,12 @@
 # Simple RSS Reader Monitoring Stack
 # Easy setup for beginners - just run: docker compose up -d
-# 
+#
 # Access:
 #   - Grafana: http://localhost:3001 (admin/admin)
 #   - Prometheus: http://localhost:9090
 
 services:
-# Prometheus - Collects metrics from your RSS Reader
+  # Prometheus - Collects metrics from your RSS Reader
   prometheus:
     image: prom/prometheus:latest
     container_name: prometheus

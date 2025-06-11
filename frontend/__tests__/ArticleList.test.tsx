@@ -1,23 +1,23 @@
-import { ArticleList } from '../features/articles/ArticleList';
-import { render, screen } from '@testing-library/react';
-import { describe, it, expect } from 'vitest';
+import { ArticleList } from "../features/articles/ArticleList";
+import { render, screen } from "@testing-library/react";
+import { describe, it, expect } from "vitest";
 
 const noop = () => {};
 
-describe('ArticleList', () => {
-  it('renders empty state when no articles', () => {
+describe("ArticleList", () => {
+  it("renders empty state when no articles", () => {
     render(
       <ArticleList
         articles={[]}
         onSelectArticle={noop}
         selectedArticleId={null}
         feedTitle="Test Feed"
-        sortOption={'date-desc'}
+        sortOption={"date-desc"}
         onSortChange={noop}
-        filterOption={'all'}
+        filterOption={"all"}
         onFilterChange={noop}
         totalFeedsCount={0}
-        viewStyle={'list'}
+        viewStyle={"list"}
         onViewStyleChange={noop}
       />
     );

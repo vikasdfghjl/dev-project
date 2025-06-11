@@ -1,12 +1,13 @@
+import logging
+import time
+
+from app.api.v1.api import router as api_v1_router
+from app.api.v1.endpoints.metrics import increment_http_requests
+from app.db.database import Base, engine, health_check_database
+from app.services.background_tasks import background_manager
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
-from app.api.v1.api import router as api_v1_router
-from app.db.database import Base, engine, health_check_database
-from app.services.background_tasks import background_manager
-from app.api.v1.endpoints.metrics import increment_http_requests
-import logging
-import time
 
 # Application version
 APP_VERSION = "1.0.0"
@@ -29,7 +30,7 @@ else:
 app = FastAPI(
     title="RSS Reader API",
     description="Backend API for RSS feed management",
-    version="1.0.0"
+    version="1.0.0",
 )
 
 app.add_middleware(
@@ -40,25 +41,27 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
 # Add metrics middleware
 @app.middleware("http")
 async def metrics_middleware(request, call_next):
     """Middleware to track HTTP request metrics"""
     start_time = time.time()
-    
+
     response = await call_next(request)
-    
+
     # Calculate request duration
     duration = time.time() - start_time
-    
+
     # Track HTTP requests
     increment_http_requests(
         method=request.method,
         endpoint=request.url.path,
-        status_code=response.status_code
+        status_code=response.status_code,
     )
-    
+
     return response
+
 
 # Add health check endpoint
 @app.get("/health")
@@ -67,17 +70,14 @@ async def health_check():
     try:
         # Check database connection
         db_healthy, db_message = health_check_database()
-        
+
         return {
             "status": "healthy" if db_healthy else "degraded",
             "database": {
                 "status": "healthy" if db_healthy else "unhealthy",
-                "message": db_message
+                "message": db_message,
             },
-            "api": {
-                "status": "healthy",
-                "message": "API service is running"
-            }
+            "api": {"status": "healthy", "message": "API service is running"},
         }
     except Exception as e:
         logger.error(f"Health check failed: {str(e)}")
@@ -88,14 +88,12 @@ async def health_check():
                 "error": str(e),
                 "database": {
                     "status": "unknown",
-                    "message": "Unable to check database status"
+                    "message": "Unable to check database status",
                 },
-                "api": {
-                    "status": "healthy",
-                    "message": "API service is running"
-                }
-            }
+                "api": {"status": "healthy", "message": "API service is running"},
+            },
         )
+
 
 # Add database status middleware
 @app.middleware("http")
@@ -104,7 +102,7 @@ async def check_database_connection(request, call_next):
     # Skip database check for health endpoint and static files
     if request.url.path in ["/health", "/docs", "/redoc", "/openapi.json"]:
         return await call_next(request)
-    
+
     # Check if database is available for API endpoints
     if request.url.path.startswith("/api/"):
         if engine is None:
@@ -114,13 +112,15 @@ async def check_database_connection(request, call_next):
                 content={
                     "error": "Service Unavailable",
                     "detail": "Database connection not available. Please check database status.",
-                    "type": "database_unavailable"
-                }
+                    "type": "database_unavailable",
+                },
             )
-    
+
     return await call_next(request)
 
+
 app.include_router(api_v1_router, prefix="/api/v1")
+
 
 @app.on_event("startup")
 async def start_background_tasks():
@@ -134,6 +134,7 @@ async def start_background_tasks():
             logger.error(f"❌ Failed to start background tasks: {str(e)}")
     else:
         logger.warning("⚠️ Background tasks not started - database not available")
+
 
 @app.on_event("shutdown")
 async def stop_background_tasks():

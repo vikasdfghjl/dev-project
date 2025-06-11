@@ -42,7 +42,7 @@ function Test-DockerCompose {
 function Start-Monitoring {
     Write-Host ""
     Write-Host "🚀 Starting monitoring stack..." -ForegroundColor Yellow
-    
+
     # Check if we're in the monitoring directory
     if (Test-Path "docker-compose.yml") {
         Write-Host "📍 Starting standalone monitoring stack..." -ForegroundColor Blue
@@ -57,7 +57,7 @@ function Start-Monitoring {
         Write-Host "❌ Could not find docker-compose file. Please run this script from the monitoring directory." -ForegroundColor Red
         return
     }
-    
+
     Write-Host ""
     Write-Host "⏳ Waiting for services to start..." -ForegroundColor Yellow
     Start-Sleep -Seconds 10
@@ -67,7 +67,7 @@ function Start-Monitoring {
 function Test-Services {
     Write-Host ""
     Write-Host "🔍 Checking service health..." -ForegroundColor Yellow
-    
+
     # Check Prometheus
     try {
         $response = Invoke-WebRequest -Uri "http://localhost:9090/-/healthy" -UseBasicParsing -TimeoutSec 5
@@ -78,7 +78,7 @@ function Test-Services {
     catch {
         Write-Host "⚠️  Prometheus may not be ready yet" -ForegroundColor Yellow
     }
-    
+
     # Check Grafana
     try {
         $response = Invoke-WebRequest -Uri "http://localhost:3001/api/health" -UseBasicParsing -TimeoutSec 5
@@ -139,7 +139,7 @@ function Show-Menu {
 function Stop-Monitoring {
     Write-Host ""
     Write-Host "🛑 Stopping monitoring stack..." -ForegroundColor Yellow
-    
+
     if (Test-Path "docker-compose.yml") {
         docker-compose down
     }
@@ -147,7 +147,7 @@ function Stop-Monitoring {
         Set-Location ..
         docker-compose -f docker-compose.monitoring.yml down
     }
-    
+
     Write-Host "✅ Monitoring stack stopped" -ForegroundColor Green
 }
 
@@ -155,7 +155,7 @@ function Stop-Monitoring {
 function Show-Logs {
     Write-Host ""
     Write-Host "📋 Showing monitoring logs (Ctrl+C to exit)..." -ForegroundColor Yellow
-    
+
     if (Test-Path "docker-compose.yml") {
         docker-compose logs -f
     }
@@ -170,7 +170,7 @@ function Get-Status {
     Write-Host ""
     Write-Host "📊 Service Status:" -ForegroundColor Cyan
     Write-Host "==================" -ForegroundColor Cyan
-    
+
     if (Test-Path "docker-compose.yml") {
         docker-compose ps
     }
@@ -184,7 +184,7 @@ function Get-Status {
 function Restart-Services {
     Write-Host ""
     Write-Host "🔄 Restarting monitoring services..." -ForegroundColor Yellow
-    
+
     if (Test-Path "docker-compose.yml") {
         docker-compose restart
     }
@@ -192,7 +192,7 @@ function Restart-Services {
         Set-Location ..
         docker-compose -f docker-compose.monitoring.yml restart
     }
-    
+
     Write-Host "✅ Services restarted" -ForegroundColor Green
 }
 
@@ -211,11 +211,11 @@ function Open-Browser {
 # Main script logic
 function Main {
     Show-Header
-    
+
     # Initial checks
     if (-not (Test-Docker)) { exit 1 }
     if (-not (Test-DockerCompose)) { exit 1 }
-    
+
     # Handle command line arguments
     switch ($Action.ToLower()) {
         "start" {
@@ -241,12 +241,12 @@ function Main {
             return
         }
     }
-    
+
     # Interactive menu
     do {
         Write-Host ""
         $choice = Show-Menu
-        
+
         switch ($choice) {
             "1" {
                 Start-Monitoring

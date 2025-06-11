@@ -7,6 +7,7 @@ Common issues and solutions for the monitoring stack.
 **Problem**: `docker compose up -d` fails
 
 **Solutions**:
+
 1. Check if Docker is running: `docker version`
 2. Check if ports are available: `netstat -an | findstr "3001\|9090"`
 3. View detailed logs: `docker compose logs`
@@ -16,6 +17,7 @@ Common issues and solutions for the monitoring stack.
 **Problem**: <http://localhost:3001> doesn't work
 
 **Solutions**:
+
 1. Check if Grafana is running: `docker compose ps`
 2. Check Grafana logs: `docker compose logs grafana`
 3. Try different browser or incognito mode
@@ -26,6 +28,7 @@ Common issues and solutions for the monitoring stack.
 **Problem**: Grafana shows "No data" for queries
 
 **Solutions**:
+
 1. Check Prometheus targets: <http://localhost:9090/targets>
 2. Verify RSS Reader URL in `config/prometheus.yml`
 3. Check if RSS Reader endpoints are accessible
@@ -36,6 +39,7 @@ Common issues and solutions for the monitoring stack.
 **Problem**: `up{job="rss-backend"}` returns empty
 
 **Solutions**:
+
 1. Edit `config/prometheus.yml`
 2. Change `rss-backend:8000` to your actual RSS Reader URL
 3. Restart: `docker compose restart prometheus`
@@ -48,6 +52,7 @@ Common issues and solutions for the monitoring stack.
 **Problem**: Dashboards disappear after restart
 
 **Solutions**:
+
 1. Check Docker volumes: `docker volume ls | findstr monitoring`
 2. Don't use `docker compose down -v` (removes volumes)
 3. Use `docker compose down` (keeps volumes)
@@ -57,6 +62,7 @@ Common issues and solutions for the monitoring stack.
 **Problem**: Monitoring uses too much CPU/memory
 
 **Solutions**:
+
 1. Increase scrape intervals in `config/prometheus.yml`
 2. Reduce data retention (default: 15 days)
 3. Add resource limits to `docker-compose.yml`

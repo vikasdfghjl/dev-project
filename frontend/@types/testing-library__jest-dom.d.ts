@@ -1,5 +1,5 @@
-import 'jest-dom/extend-expect';
-import '@testing-library/jest-dom';
+import "jest-dom/extend-expect";
+import "@testing-library/jest-dom";
 
 declare global {
   namespace Vi {

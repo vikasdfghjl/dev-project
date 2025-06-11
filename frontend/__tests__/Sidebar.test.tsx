@@ -1,9 +1,9 @@
-import { Sidebar } from '../features/layout/Sidebar';
-import { render } from '@testing-library/react';
-import { describe, it, expect } from 'vitest';
+import { Sidebar } from "../features/layout/Sidebar";
+import { render } from "@testing-library/react";
+import { describe, it, expect } from "vitest";
 
-describe('Sidebar', () => {
-  it('renders without crashing', () => {
+describe("Sidebar", () => {
+  it("renders without crashing", () => {
     render(
       <Sidebar
         folders={[]}

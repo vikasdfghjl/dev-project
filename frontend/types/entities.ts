@@ -31,15 +31,12 @@ export interface Folder {
   name: string;
 }
 
-export type ArticleSortOption = 
-  | 'date-desc' 
-  | 'date-asc' 
-  | 'title-asc' 
-  | 'title-desc';
+export type ArticleSortOption =
+  | "date-desc"
+  | "date-asc"
+  | "title-asc"
+  | "title-desc";
 
-export type ArticleFilterOption = 
-  | 'all' 
-  | 'unread' 
-  | 'read';
+export type ArticleFilterOption = "all" | "unread" | "read";
 
-export type ArticleViewStyle = 'list' | 'card';
+export type ArticleViewStyle = "list" | "card";

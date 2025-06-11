@@ -1,9 +1,9 @@
-import { ArticleListHeader } from '../features/articles/ArticleListHeader';
-import { render, screen } from '@testing-library/react';
-import { describe, it, expect } from 'vitest';
+import { ArticleListHeader } from "../features/articles/ArticleListHeader";
+import { render, screen } from "@testing-library/react";
+import { describe, it, expect } from "vitest";
 
-describe('ArticleListHeader', () => {
-  it('renders article list header', () => {
+describe("ArticleListHeader", () => {
+  it("renders article list header", () => {
     render(
       <ArticleListHeader
         feedTitle="Test Feed"
@@ -16,7 +16,7 @@ describe('ArticleListHeader', () => {
         onViewStyleChange={() => {}}
       />
     );
-    expect(screen.getByText('Test Feed')).toBeDefined();
-    expect(screen.getByText('5 article(s) displayed')).toBeDefined();
+    expect(screen.getByText("Test Feed")).toBeDefined();
+    expect(screen.getByText("5 article(s) displayed")).toBeDefined();
   });
 });

@@ -52,8 +52,8 @@ docker compose ps
 
 ## 📊 Access
 
-- **Grafana**: http://your-server:3001 (admin/admin)
-- **Prometheus**: http://your-server:9090
+- **Grafana**: <http://your-server:3001> (admin/admin)
+- **Prometheus**: <http://your-server:9090>
 
 ## 🔧 Common Tasks
 
@@ -83,7 +83,7 @@ docker run --rm -v monitoring-grafana-data:/data -v $(pwd):/backup alpine tar cz
 
 ## 🔍 Creating Dashboards
 
-1. Open Grafana at http://your-server:3001
+1. Open Grafana at <http://your-server:3001>
 2. Login with admin/admin
 3. Click "+" → "Dashboard" → "Add visualization"
 4. Select "Prometheus" as datasource

@@ -1,7 +1,6 @@
-
-import React from 'react';
-import type { Feed } from '../../../types';
-import { FeedItem } from './FeedItem';
+import React from "react";
+import type { Feed } from "../../../types";
+import { FeedItem } from "./FeedItem";
 
 interface FeedListProps {
   feeds: Feed[];
@@ -12,7 +11,13 @@ interface FeedListProps {
   onMoveFeed: (feed: Feed) => void;
 }
 
-export const FeedList: React.FC<FeedListProps> = ({ feeds, selectedFeedId, onSelectFeed, onDeleteFeed, onMoveFeed }) => {
+export const FeedList: React.FC<FeedListProps> = ({
+  feeds,
+  selectedFeedId,
+  onSelectFeed,
+  onDeleteFeed,
+  onMoveFeed,
+}) => {
   if (feeds.length === 0) {
     return null; // Or a message, handled by Sidebar
   }
@@ -20,7 +25,7 @@ export const FeedList: React.FC<FeedListProps> = ({ feeds, selectedFeedId, onSel
   return (
     <nav className="py-2">
       <ul>
-        {feeds.map((feed) => (
+        {feeds.map(feed => (
           <FeedItem
             key={feed.id}
             feed={feed}

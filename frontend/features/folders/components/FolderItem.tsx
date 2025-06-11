@@ -1,9 +1,8 @@
-
-import React, { useState } from 'react';
-import type { Feed, Folder } from '../../../types';
-import { FeedItem } from '../../feeds/components/FeedItem';
-import { FolderItemHeader } from './FolderItemHeader';
-import { FolderItemActions } from './FolderItemActions';
+import React, { useState } from "react";
+import type { Feed, Folder } from "../../../types";
+import { FeedItem } from "../../feeds/components/FeedItem";
+import { FolderItemHeader } from "./FolderItemHeader";
+import { FolderItemActions } from "./FolderItemActions";
 
 interface FolderItemProps {
   folder: Folder;
@@ -24,7 +23,7 @@ const FolderItemComponent: React.FC<FolderItemProps> = ({
   onDeleteFeed,
   onEditFolder,
   onDeleteFolder,
-  onMoveFeed
+  onMoveFeed,
 }) => {
   const [isOpen, setIsOpen] = useState(true);
 
@@ -37,17 +36,20 @@ const FolderItemComponent: React.FC<FolderItemProps> = ({
         feedCount={feeds.length}
         onToggleOpen={() => setIsOpen(!isOpen)}
         childrenActions={
-          <FolderItemActions 
-              folderName={folder.name}
-              onEditFolder={onEditFolder}
-              onDeleteFolder={onDeleteFolder}
+          <FolderItemActions
+            folderName={folder.name}
+            onEditFolder={onEditFolder}
+            onDeleteFolder={onDeleteFolder}
           />
         }
       />
       {isOpen && (
-        <ul id={`folder-content-${folder.id}`} className="pl-2 border-l-2 border-border dark:border-slate-700 ml-[26px] mb-1">
+        <ul
+          id={`folder-content-${folder.id}`}
+          className="pl-2 border-l-2 border-border dark:border-slate-700 ml-[26px] mb-1"
+        >
           {feeds.length > 0 ? (
-            feeds.map((feed) => (
+            feeds.map(feed => (
               <FeedItem
                 key={feed.id}
                 feed={feed}

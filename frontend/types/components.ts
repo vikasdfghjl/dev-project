@@ -1,11 +1,12 @@
 // Component prop types and UI-specific types
 
-import React from 'react';
+import React from "react";
 
 // Button component types (already defined in ui/Button.tsx but exported here for consistency)
-export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: 'primary' | 'secondary' | 'ghost' | 'danger' | 'muted';
-  size?: 'sm' | 'md' | 'lg';
+export interface ButtonProps
+  extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+  variant?: "primary" | "secondary" | "ghost" | "danger" | "muted";
+  size?: "sm" | "md" | "lg";
   isLoading?: boolean;
   leftIcon?: React.ReactNode;
   rightIcon?: React.ReactNode;
@@ -18,7 +19,7 @@ export interface ModalProps {
   title: React.ReactNode;
   children: React.ReactNode;
   footerContent?: React.ReactNode;
-  size?: 'sm' | 'md' | 'lg' | 'xl';
+  size?: "sm" | "md" | "lg" | "xl";
 }
 
 // Common component props

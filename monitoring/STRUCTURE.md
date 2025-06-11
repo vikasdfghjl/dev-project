@@ -7,7 +7,7 @@ Clean, beginner-friendly structure for RSS Reader monitoring.
 ```
 monitoring/
 ├── README.md                    # Quick start guide
-├── docker-compose.yml           # Main monitoring stack  
+├── docker-compose.yml           # Main monitoring stack
 ├── setup.cmd                    # Windows quick setup
 ├── STRUCTURE.md                 # This file
 │
@@ -32,7 +32,7 @@ monitoring/
 
 ✅ **Simple**: Main files at root, organized subdirectories
 ✅ **Beginner-friendly**: Clear naming and minimal configuration
-✅ **Cross-platform**: Setup scripts for Windows, Linux, Mac  
+✅ **Cross-platform**: Setup scripts for Windows, Linux, Mac
 ✅ **No pre-built dashboards**: Create your own in Grafana
 ✅ **Self-contained**: All configs in one place
 ✅ **Documented**: Comprehensive guides for each component
@@ -40,7 +40,7 @@ monitoring/
 ## Getting Started
 
 1. Run `setup.cmd` (Windows) or `scripts/setup.sh` (Linux/Mac)
-2. Open Grafana at http://localhost:3001 (admin/admin)
+2. Open Grafana at <http://localhost:3001> (admin/admin)
 3. Create dashboards manually
 4. Edit `config/prometheus.yml` to add your RSS Reader URLs
 

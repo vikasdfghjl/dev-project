@@ -1,9 +1,14 @@
-import React from 'react';
-import type { Article, ArticleSortOption, ArticleFilterOption, ArticleViewStyle } from '../../types/entities';
-import { ArticleListItem } from './ArticleListItem';
-import { ArticleCardItem } from './components/ArticleCardItem';
-import { ArticleListHeader } from './ArticleListHeader';
-import { ArticleListEmptyState } from './components/ArticleListEmptyState';
+import React from "react";
+import type {
+  Article,
+  ArticleSortOption,
+  ArticleFilterOption,
+  ArticleViewStyle,
+} from "../../types/entities";
+import { ArticleListItem } from "./ArticleListItem";
+import { ArticleCardItem } from "./components/ArticleCardItem";
+import { ArticleListHeader } from "./ArticleListHeader";
+import { ArticleListEmptyState } from "./components/ArticleListEmptyState";
 
 interface ArticleListProps {
   articles: Article[];
@@ -20,21 +25,29 @@ interface ArticleListProps {
 }
 
 function groupArticlesByDate(articles: Article[]) {
-  return articles.reduce((acc, article) => {
-    const date = article.pubDate ? new Date(article.pubDate) : null;
-    const dateKey = date && !isNaN(date.getTime())
-      ? date.toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' })
-      : 'Unknown date';
-    if (!acc[dateKey]) acc[dateKey] = [];
-    acc[dateKey].push(article);
-    return acc;
-  }, {} as Record<string, Article[]>);
+  return articles.reduce(
+    (acc, article) => {
+      const date = article.pubDate ? new Date(article.pubDate) : null;
+      const dateKey =
+        date && !isNaN(date.getTime())
+          ? date.toLocaleDateString(undefined, {
+              year: "numeric",
+              month: "long",
+              day: "numeric",
+            })
+          : "Unknown date";
+      if (!acc[dateKey]) acc[dateKey] = [];
+      acc[dateKey].push(article);
+      return acc;
+    },
+    {} as Record<string, Article[]>
+  );
 }
 
-const ArticleListComponent: React.FC<ArticleListProps> = ({ 
-  articles, 
-  onSelectArticle, 
-  selectedArticleId, 
+const ArticleListComponent: React.FC<ArticleListProps> = ({
+  articles,
+  onSelectArticle,
+  selectedArticleId,
   feedTitle,
   sortOption,
   onSortChange,
@@ -48,7 +61,7 @@ const ArticleListComponent: React.FC<ArticleListProps> = ({
 
   if (articles.length === 0) {
     return (
-      <ArticleListEmptyState 
+      <ArticleListEmptyState
         feedTitle={feedTitle}
         totalFeedsCount={totalFeedsCount}
         filterOption={filterOption}
@@ -77,7 +90,7 @@ const ArticleListComponent: React.FC<ArticleListProps> = ({
         viewStyle={viewStyle}
         onViewStyleChange={onViewStyleChange}
       />
-      {viewStyle === 'list' ? (
+      {viewStyle === "list" ? (
         <ul className="divide-y divide-border dark:divide-slate-700">
           {dateKeys.map(dateKey => (
             <React.Fragment key={dateKey}>

@@ -31,7 +31,7 @@ check_docker_compose() {
 start_monitoring() {
     echo ""
     echo "🚀 Starting monitoring stack..."
-    
+
     # Check if we're in the monitoring directory
     if [ -f "docker-compose.yml" ]; then
         echo "📍 Starting standalone monitoring stack..."
@@ -44,7 +44,7 @@ start_monitoring() {
         echo "❌ Could not find docker-compose file. Please run this script from the monitoring directory."
         exit 1
     fi
-    
+
     echo ""
     echo "⏳ Waiting for services to start..."
     sleep 10
@@ -54,14 +54,14 @@ start_monitoring() {
 check_services() {
     echo ""
     echo "🔍 Checking service health..."
-    
+
     # Check Prometheus
     if curl -s http://localhost:9090/-/healthy > /dev/null; then
         echo "✅ Prometheus is healthy"
     else
         echo "⚠️  Prometheus may not be ready yet"
     fi
-    
+
     # Check Grafana
     if curl -s http://localhost:3001/api/health > /dev/null; then
         echo "✅ Grafana is healthy"
@@ -115,14 +115,14 @@ show_menu() {
 stop_monitoring() {
     echo ""
     echo "🛑 Stopping monitoring stack..."
-    
+
     if [ -f "docker-compose.yml" ]; then
         docker-compose down
     elif [ -f "../docker-compose.monitoring.yml" ]; then
         cd ..
         docker-compose -f docker-compose.monitoring.yml down
     fi
-    
+
     echo "✅ Monitoring stack stopped"
 }
 
@@ -130,7 +130,7 @@ stop_monitoring() {
 show_logs() {
     echo ""
     echo "📋 Showing monitoring logs (Ctrl+C to exit)..."
-    
+
     if [ -f "docker-compose.yml" ]; then
         docker-compose logs -f
     elif [ -f "../docker-compose.monitoring.yml" ]; then
@@ -144,7 +144,7 @@ check_status() {
     echo ""
     echo "📊 Service Status:"
     echo "=================="
-    
+
     if [ -f "docker-compose.yml" ]; then
         docker-compose ps
     elif [ -f "../docker-compose.monitoring.yml" ]; then
@@ -157,14 +157,14 @@ check_status() {
 restart_services() {
     echo ""
     echo "🔄 Restarting monitoring services..."
-    
+
     if [ -f "docker-compose.yml" ]; then
         docker-compose restart
     elif [ -f "../docker-compose.monitoring.yml" ]; then
         cd ..
         docker-compose -f docker-compose.monitoring.yml restart
     fi
-    
+
     echo "✅ Services restarted"
 }
 
@@ -173,12 +173,12 @@ main() {
     # Initial checks
     check_docker
     check_docker_compose
-    
+
     # Interactive menu
     while true; do
         echo ""
         show_menu
-        
+
         case $choice in
             1)
                 start_monitoring

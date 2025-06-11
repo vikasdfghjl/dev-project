@@ -1,5 +1,11 @@
-import { BaseApiService } from './BaseApiService';
-import type { Feed, Article, Folder, AppSettings, SettingsUpdate } from '../../types';
+import { BaseApiService } from "./BaseApiService";
+import type {
+  Feed,
+  Article,
+  Folder,
+  AppSettings,
+  SettingsUpdate,
+} from "../../types";
 
 /**
  * RSS Service that extends BaseApiService
@@ -7,7 +13,7 @@ import type { Feed, Article, Folder, AppSettings, SettingsUpdate } from '../../t
  */
 class RssApiService extends BaseApiService {
   constructor() {
-    super('http://localhost:8000/api/v1');
+    super("http://localhost:8000/api/v1");
   }
 
   /**
@@ -22,7 +28,7 @@ class RssApiService extends BaseApiService {
   }
 
   private transformItem(item: any): any {
-    if (!item || typeof item !== 'object') {
+    if (!item || typeof item !== "object") {
       return item;
     }
 
@@ -35,7 +41,9 @@ class RssApiService extends BaseApiService {
 
     // Convert folder_id to folderId and make it a string
     if (transformed.folder_id !== undefined) {
-      transformed.folderId = transformed.folder_id ? String(transformed.folder_id) : null;
+      transformed.folderId = transformed.folder_id
+        ? String(transformed.folder_id)
+        : null;
       delete transformed.folder_id;
     }
 
@@ -64,48 +72,61 @@ class RssApiService extends BaseApiService {
    */
   async getFeeds(): Promise<Feed[]> {
     // Removed debug logging for production
-    const data = await this.get<any[]>('/feeds/');
+    const data = await this.get<any[]>("/feeds/");
     return this.transformResponse<Feed[]>(data);
   }
   /**
    * Adds a new feed by its URL
    */
-  async addFeed(url: string, feedName: string, folderId?: string | null): Promise<Feed> {
+  async addFeed(
+    url: string,
+    feedName: string,
+    folderId?: string | null
+  ): Promise<Feed> {
     if (!url?.trim()) {
-      throw new Error('Feed URL cannot be empty.');
+      throw new Error("Feed URL cannot be empty.");
     }
     if (!feedName?.trim()) {
-      throw new Error('Feed name cannot be empty.');
+      throw new Error("Feed name cannot be empty.");
     }
     try {
-      const data = await this.post<any>('/feeds/', {
+      const data = await this.post<any>("/feeds/", {
         url,
         title: feedName,
-        folder_id: folderId
+        folder_id: folderId,
       });
       return this.transformResponse<Feed>(data);
     } catch (err: any) {
       // If backend returns a 400 error, try to parse and throw a user-friendly message
       if (err instanceof Error && (err as any).status === 400) {
-        let msg = 'This feed source already exists!!.';
+        let msg = "This feed source already exists!!.";
         if (err.message) {
           try {
-            const parsed = typeof err.message === 'string' ? JSON.parse(err.message) : err.message;
-            if ((parsed && parsed.existingFeed) || (parsed && parsed.detail && parsed.detail.existingFeed)) {
-              msg = 'This feed source already exists!!.';
-            } else if (
-              (parsed && parsed.detail && typeof parsed.detail === 'string' &&
-                parsed.detail.toLowerCase().includes('already exists'))
+            const parsed =
+              typeof err.message === "string"
+                ? JSON.parse(err.message)
+                : err.message;
+            if (
+              (parsed && parsed.existingFeed) ||
+              (parsed && parsed.detail && parsed.detail.existingFeed)
             ) {
-              msg = 'This feed source already exists!!.';
+              msg = "This feed source already exists!!.";
             } else if (
-              typeof parsed === 'string' && parsed.toLowerCase().includes('already exists')
+              parsed &&
+              parsed.detail &&
+              typeof parsed.detail === "string" &&
+              parsed.detail.toLowerCase().includes("already exists")
             ) {
-              msg = 'This feed source already exists!!.';
+              msg = "This feed source already exists!!.";
+            } else if (
+              typeof parsed === "string" &&
+              parsed.toLowerCase().includes("already exists")
+            ) {
+              msg = "This feed source already exists!!.";
             }
           } catch {
-            if (err.message.toLowerCase().includes('already exists')) {
-              msg = 'This feed source already exists!!.';
+            if (err.message.toLowerCase().includes("already exists")) {
+              msg = "This feed source already exists!!.";
             }
           }
         }
@@ -124,15 +145,21 @@ class RssApiService extends BaseApiService {
   /**
    * Updates a feed's folder
    */
-  async moveFeedToFolder(feedId: string, folderId: string | null): Promise<Feed> {
-    console.log('🔄 RssApiService.moveFeedToFolder called with:', { feedId, folderId });
+  async moveFeedToFolder(
+    feedId: string,
+    folderId: string | null
+  ): Promise<Feed> {
+    console.log("🔄 RssApiService.moveFeedToFolder called with:", {
+      feedId,
+      folderId,
+    });
     // Use PATCH to /feeds/{feedId}/move to match backend
     const data = await this.patch<any>(`/feeds/${feedId}/move`, {
-      target_folder_id: folderId
+      target_folder_id: folderId,
     });
-    console.log('📊 Raw move feed response from backend:', data);
+    console.log("📊 Raw move feed response from backend:", data);
     const transformed = this.transformResponse<Feed>(data);
-    console.log('📊 Transformed move feed response:', transformed);
+    console.log("📊 Transformed move feed response:", transformed);
     return transformed;
   }
   /**
@@ -148,11 +175,11 @@ class RssApiService extends BaseApiService {
    */
   async markArticleAsRead(articleId: string): Promise<void> {
     return this.put<void>(`/articles/${articleId}/read`, {});
-  }  /**
+  } /**
    * Fetches all folders for the user
    */
   async getFolders(): Promise<Folder[]> {
-    const data = await this.get<any[]>('/folders/');
+    const data = await this.get<any[]>("/folders/");
     return this.transformResponse<Folder[]>(data);
   }
   /**
@@ -160,10 +187,10 @@ class RssApiService extends BaseApiService {
    */
   async addFolder(name: string): Promise<Folder> {
     if (!name?.trim()) {
-      throw new Error('Folder name cannot be empty.');
+      throw new Error("Folder name cannot be empty.");
     }
 
-    const data = await this.post<any>('/folders/', { name });
+    const data = await this.post<any>("/folders/", { name });
     return this.transformResponse<Folder>(data);
   }
   /**
@@ -171,7 +198,7 @@ class RssApiService extends BaseApiService {
    */
   async renameFolder(folderId: string, newName: string): Promise<Folder> {
     if (!newName?.trim()) {
-      throw new Error('Folder name cannot be empty.');
+      throw new Error("Folder name cannot be empty.");
     }
 
     const data = await this.put<any>(`/folders/${folderId}`, { name: newName });
@@ -188,7 +215,7 @@ class RssApiService extends BaseApiService {
    * Fetches application settings
    */
   async getSettings(): Promise<AppSettings> {
-    const data = await this.get<any>('/settings/');
+    const data = await this.get<any>("/settings/");
     return this.transformResponse<AppSettings>(data);
   }
 
@@ -196,20 +223,22 @@ class RssApiService extends BaseApiService {
    * Updates application settings
    */
   async updateSettings(settings: SettingsUpdate): Promise<AppSettings> {
-    const data = await this.put<any>('/settings/', settings);
+    const data = await this.put<any>("/settings/", settings);
     return this.transformResponse<AppSettings>(data);
   }
 
   /**
    * Cleans up old articles
    */
-  async cleanupOldArticles(daysToKeep: number): Promise<{ deleted_count: number }> {
+  async cleanupOldArticles(
+    daysToKeep: number
+  ): Promise<{ deleted_count: number }> {
     if (daysToKeep < 1) {
-      throw new Error('Days to keep must be at least 1.');
+      throw new Error("Days to keep must be at least 1.");
     }
 
-    return this.post<{ deleted_count: number }>('/articles/cleanup', {
-      days_to_keep: daysToKeep
+    return this.post<{ deleted_count: number }>("/articles/cleanup", {
+      days_to_keep: daysToKeep,
     });
   }
 
@@ -218,11 +247,13 @@ class RssApiService extends BaseApiService {
    */
   async fetchFeedTitle(url: string): Promise<string> {
     if (!url?.trim()) {
-      throw new Error('Feed URL cannot be empty.');
+      throw new Error("Feed URL cannot be empty.");
     }
 
-    const data = await this.post<{ title: string }>('/feeds/parse-title', { url });
-    return data.title || '';
+    const data = await this.post<{ title: string }>("/feeds/parse-title", {
+      url,
+    });
+    return data.title || "";
   }
 }
 

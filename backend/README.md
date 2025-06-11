@@ -24,7 +24,7 @@ RSS Reader Backend
 - Create a virtual environment:
 
   **Windows:**
-  
+
   ```sh
   uv venv .venv
   .venv\Scripts\Activate.ps1

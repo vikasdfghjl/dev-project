@@ -1,4 +1,4 @@
-import React, { Component, ErrorInfo, ReactNode } from 'react';
+import React, { Component, ErrorInfo, ReactNode } from "react";
 
 interface ErrorBoundaryState {
   hasError: boolean;
@@ -16,7 +16,10 @@ interface ErrorBoundaryProps {
  * Error Boundary component to catch JavaScript errors anywhere in the child component tree
  * Provides a fallback UI and optional error reporting
  */
-export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
+export class ErrorBoundary extends Component<
+  ErrorBoundaryProps,
+  ErrorBoundaryState
+> {
   constructor(props: ErrorBoundaryProps) {
     super(props);
     this.state = { hasError: false };
@@ -29,11 +32,11 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
     // Log the error to console and optionally report to error service
-    console.error('Error caught by ErrorBoundary:', error, errorInfo);
-    
+    console.error("Error caught by ErrorBoundary:", error, errorInfo);
+
     this.setState({
       error,
-      errorInfo
+      errorInfo,
     });
 
     // Call optional error handler
@@ -57,29 +60,30 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
         <div className="min-h-screen flex items-center justify-center bg-background dark:bg-slate-900">
           <div className="max-w-md w-full mx-4 p-6 bg-card dark:bg-slate-800 rounded-lg shadow-lg border border-border dark:border-slate-700">
             <div className="flex items-center mb-4">
-              <svg 
-                className="w-8 h-8 text-red-500 mr-3" 
-                fill="none" 
-                stroke="currentColor" 
+              <svg
+                className="w-8 h-8 text-red-500 mr-3"
+                fill="none"
+                stroke="currentColor"
                 viewBox="0 0 24 24"
               >
-                <path 
-                  strokeLinecap="round" 
-                  strokeLinejoin="round" 
-                  strokeWidth={2} 
-                  d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" 
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"
                 />
               </svg>
               <h2 className="text-xl font-semibold text-foreground dark:text-slate-200">
                 Something went wrong
               </h2>
             </div>
-            
+
             <p className="text-muted-foreground dark:text-slate-400 mb-4">
-              We're sorry, but something unexpected happened. Please try refreshing the page or contact support if the problem persists.
+              We're sorry, but something unexpected happened. Please try
+              refreshing the page or contact support if the problem persists.
             </p>
 
-            {process.env.NODE_ENV === 'development' && this.state.error && (
+            {process.env.NODE_ENV === "development" && this.state.error && (
               <details className="mb-4 p-3 bg-red-50 dark:bg-red-900/20 rounded border border-red-200 dark:border-red-800">
                 <summary className="cursor-pointer text-sm font-medium text-red-700 dark:text-red-300 mb-2">
                   Error Details (Development)

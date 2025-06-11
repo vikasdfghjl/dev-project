@@ -1,14 +1,16 @@
-
-import React from 'react';
-import { PlusIcon } from '../../shared/icons/PlusIcon';
-import { FolderIcon } from '../../shared/icons/FolderIcon';
+import React from "react";
+import { PlusIcon } from "../../shared/icons/PlusIcon";
+import { FolderIcon } from "../../shared/icons/FolderIcon";
 
 interface SidebarEmptyStateProps {
   onAddFeedClick: () => void;
   onAddFolderClick: () => void;
 }
 
-const SidebarEmptyStateComponent: React.FC<SidebarEmptyStateProps> = ({ onAddFeedClick, onAddFolderClick }) => {
+const SidebarEmptyStateComponent: React.FC<SidebarEmptyStateProps> = ({
+  onAddFeedClick,
+  onAddFolderClick,
+}) => {
   return (
     <div className="p-4 text-center text-muted-foreground dark:text-slate-400">
       <p className="mb-2">No feeds or folders yet.</p>

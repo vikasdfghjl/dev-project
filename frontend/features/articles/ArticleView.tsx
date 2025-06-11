@@ -1,15 +1,18 @@
-import React from 'react';
-import type { Article } from '../../types/entities';
-import { ExternalLinkIcon } from '../shared/icons/ExternalLinkIcon';
-import { ChevronLeftIcon } from '../shared/icons/ChevronLeftIcon';
-import { ArticleViewHeader } from './ArticleViewHeader';
+import React from "react";
+import type { Article } from "../../types/entities";
+import { ExternalLinkIcon } from "../shared/icons/ExternalLinkIcon";
+import { ChevronLeftIcon } from "../shared/icons/ChevronLeftIcon";
+import { ArticleViewHeader } from "./ArticleViewHeader";
 
 interface ArticleViewProps {
   article: Article;
   onBack: () => void;
 }
 
-const ArticleViewComponent: React.FC<ArticleViewProps> = ({ article, onBack }) => {
+const ArticleViewComponent: React.FC<ArticleViewProps> = ({
+  article,
+  onBack,
+}) => {
   return (
     <div className="flex-1 overflow-y-auto p-6 md:p-8 bg-background dark:bg-slate-850">
       <button
@@ -19,21 +22,25 @@ const ArticleViewComponent: React.FC<ArticleViewProps> = ({ article, onBack }) =
         <ChevronLeftIcon className="w-4 h-4 mr-1" />
         Back to articles
       </button>
-      
+
       <article className="prose dark:prose-invert dark:prose-headings:text-slate-100 dark:prose-p:text-slate-300 dark:prose-li:text-slate-300 dark:prose-a:text-primary-dark dark:hover:prose-a:text-primary-dark/80 dark:prose-strong:text-slate-200 lg:prose-xl max-w-4xl mx-auto">
-        <ArticleViewHeader article={{
-          title: article.title,
-          author: article.author ?? '',
-          pubDate: article.pubDate,
-          feedTitle: article.feedTitle,
-          imageUrl: article.imageUrl,
-          content: article.content,
-        }} />
+        <ArticleViewHeader
+          article={{
+            title: article.title,
+            author: article.author ?? "",
+            pubDate: article.pubDate,
+            feedTitle: article.feedTitle,
+            imageUrl: article.imageUrl,
+            content: article.content,
+          }}
+        />
 
         {article.content ? (
           <div dangerouslySetInnerHTML={{ __html: article.content }} />
         ) : (
-          <p>{article.contentSnippet || 'No content available for this article.'}</p>
+          <p>
+            {article.contentSnippet || "No content available for this article."}
+          </p>
         )}
 
         <div className="mt-8 pt-6 border-t border-border dark:border-slate-700">
