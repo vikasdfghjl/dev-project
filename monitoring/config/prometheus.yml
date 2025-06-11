@@ -1,0 +1,31 @@
+# Simple Prometheus Configuration
+# Edit the targets below to point to your RSS Reader application
+
+global:
+  scrape_interval: 15s
+
+scrape_configs:
+  # Prometheus itself
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+  # RSS Reader Backend - Main Metrics
+  - job_name: 'rss-backend'
+    static_configs:
+      - targets: ['host.docker.internal:8000']  # Backend running on host
+    metrics_path: /api/v1/metrics
+    scrape_interval: 10s
+
+  # RSS Reader Backend - Health Status
+  - job_name: 'rss-backend-health'
+    static_configs:
+      - targets: ['host.docker.internal:8000']  # Backend running on host
+    metrics_path: /api/v1/status/simple
+    scrape_interval: 30s
+
+  # RSS Reader Database Status
+  - job_name: 'rss-database'
+    static_configs:
+      - targets: ['host.docker.internal:8000']  # Backend running on host
+    metrics_path: /api/v1/status/database
+    scrape_interval: 30s

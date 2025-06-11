@@ -9,14 +9,18 @@
  */
 export const formatDate = (dateString: string): string => {
   const date = new Date(dateString);
-  return date.toLocaleDateString(undefined, { 
-    year: 'numeric', 
-    month: 'long', 
-    day: 'numeric' 
-  }) + ' at ' + date.toLocaleTimeString(undefined, { 
-    hour: '2-digit', 
-    minute: '2-digit'
-  });
+  return (
+    date.toLocaleDateString(undefined, {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    }) +
+    " at " +
+    date.toLocaleTimeString(undefined, {
+      hour: "2-digit",
+      minute: "2-digit",
+    })
+  );
 };
 
 /**
@@ -28,12 +32,12 @@ export const formatDateCompact = (dateString: string): string => {
   try {
     const date = new Date(dateString);
     if (isNaN(date.getTime())) {
-      throw new Error('Invalid date');
+      throw new Error("Invalid date");
     }
-    return date.toLocaleDateString('en-US', {
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric'
+    return date.toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
     });
   } catch (error) {
     return formatRelativeDate(dateString);
@@ -49,13 +53,13 @@ export const formatRelativeDate = (dateString: string): string => {
   try {
     const date = new Date(dateString);
     if (isNaN(date.getTime())) {
-      throw new Error('Invalid date');
+      throw new Error("Invalid date");
     }
     const now = new Date();
     const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000);
 
     if (diffInSeconds < 60) {
-      return 'just now';
+      return "just now";
     }
 
     const diffInMinutes = Math.floor(diffInSeconds / 60);
@@ -86,7 +90,7 @@ export const formatRelativeDate = (dateString: string): string => {
     const diffInYears = Math.floor(diffInDays / 365);
     return `${diffInYears}y ago`;
   } catch (error) {
-    return 'unknown date';
+    return "unknown date";
   }
 };
 
@@ -118,18 +122,23 @@ export const isYesterday = (dateString: string): boolean => {
  * @param articles - Array of articles with pubDate
  * @returns Object with date keys and article arrays
  */
-export const groupByDate = <T extends { pubDate: string }>(items: T[]): Record<string, T[]> => {
-  return items.reduce((groups, item) => {
-    const date = new Date(item.pubDate);
-    const dateKey = date.toDateString();
-    
-    if (!groups[dateKey]) {
-      groups[dateKey] = [];
-    }
-    groups[dateKey].push(item);
-    
-    return groups;
-  }, {} as Record<string, T[]>);
+export const groupByDate = <T extends { pubDate: string }>(
+  items: T[]
+): Record<string, T[]> => {
+  return items.reduce(
+    (groups, item) => {
+      const date = new Date(item.pubDate);
+      const dateKey = date.toDateString();
+
+      if (!groups[dateKey]) {
+        groups[dateKey] = [];
+      }
+      groups[dateKey].push(item);
+
+      return groups;
+    },
+    {} as Record<string, T[]>
+  );
 };
 
 /**
@@ -142,19 +151,19 @@ export const formatDateGroupHeader = (dateKey: string): string => {
   const today = new Date();
   const yesterday = new Date();
   yesterday.setDate(yesterday.getDate() - 1);
-  
+
   if (date.toDateString() === today.toDateString()) {
-    return 'Today';
+    return "Today";
   }
-  
+
   if (date.toDateString() === yesterday.toDateString()) {
-    return 'Yesterday';
+    return "Yesterday";
   }
-  
-  return date.toLocaleDateString(undefined, { 
-    weekday: 'long', 
-    year: 'numeric', 
-    month: 'long', 
-    day: 'numeric' 
+
+  return date.toLocaleDateString(undefined, {
+    weekday: "long",
+    year: "numeric",
+    month: "long",
+    day: "numeric",
   });
 };

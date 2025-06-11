@@ -1,19 +1,23 @@
 # Feed schemas
-from pydantic import BaseModel, ConfigDict, field_validator
-from typing import List, Optional
 import uuid
+from typing import List, Optional
+
 from app.schemas.article import Article  # Import Article schema
+from pydantic import BaseModel, ConfigDict, field_validator
+
 
 class FeedBase(BaseModel):
     url: str
     title: str | None = None
     folder_id: str | None = None
 
+
 class FeedCreate(BaseModel):
     url: str
     title: str | None = None
     folder_id: str | None = None
     favicon: str | None = None  # Add favicon to creation schema
+
 
 class Feed(FeedBase):
     id: str
@@ -23,14 +27,14 @@ class Feed(FeedBase):
     description: str | None = None
     folder_id: str | None = None
     favicon: str | None = None  # Add favicon to schema
-    articles: List[Article] = []  # Add articles field with correct Pydantic type
+    articles: list[Article] = []  # Add articles field with correct Pydantic type
 
-    @field_validator('id', mode='before')
+    @field_validator("id", mode="before")
     @classmethod
     def convert_id_to_str(cls, v):
         return str(v)
 
-    @field_validator('folder_id', mode='before')
+    @field_validator("folder_id", mode="before")
     @classmethod
     def convert_folder_id_to_str(cls, v):
         if v is None:

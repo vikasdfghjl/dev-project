@@ -1,8 +1,10 @@
 # Article schemas
-from pydantic import BaseModel, ConfigDict, field_validator
+import uuid
 from datetime import datetime
 from typing import Optional
-import uuid
+
+from pydantic import BaseModel, ConfigDict, field_validator
+
 
 class ArticleBase(BaseModel):
     title: str
@@ -12,16 +14,18 @@ class ArticleBase(BaseModel):
     description: Optional[str] = None
     image_url: Optional[str] = None
 
+
 class ArticleCreate(ArticleBase):
     feed_id: Optional[str] = None
     content: Optional[str] = None
 
-    @field_validator('feed_id', mode='before')
+    @field_validator("feed_id", mode="before")
     @classmethod
     def convert_feed_id_to_str(cls, v):
         if v is None:
             return v
         return str(v)
+
 
 class Article(ArticleBase):
     id: str
@@ -30,15 +34,15 @@ class Article(ArticleBase):
     is_read: bool = False
     created_at: datetime
     updated_at: datetime
-    
-    @field_validator('id', mode='before')
+
+    @field_validator("id", mode="before")
     @classmethod
     def convert_id_to_str(cls, v):
         return str(v)
-    
-    @field_validator('feed_id', mode='before')
+
+    @field_validator("feed_id", mode="before")
     @classmethod
     def convert_feed_id_to_str(cls, v):
         return str(v)
-    
+
     model_config = ConfigDict(from_attributes=True)

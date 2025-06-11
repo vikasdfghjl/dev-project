@@ -1,7 +1,7 @@
-import React from 'react';
-import { TrashIcon } from '../../shared/icons/TrashIcon';
-import { EditIcon } from '../../shared/icons/EditIcon';
-import { Button } from '../../shared/ui/Button';
+import React from "react";
+import { TrashIcon } from "../../shared/icons/TrashIcon";
+import { EditIcon } from "../../shared/icons/EditIcon";
+import { Button } from "../../shared/ui/Button";
 
 interface FeedItemActionsProps {
   feedTitle: string;
@@ -10,10 +10,17 @@ interface FeedItemActionsProps {
   isSelected?: boolean; // To adjust opacity if needed
 }
 
-const FeedItemActionsComponent: React.FC<FeedItemActionsProps> = ({ feedTitle, onMove, onDelete, isSelected }) => {
+const FeedItemActionsComponent: React.FC<FeedItemActionsProps> = ({
+  feedTitle,
+  onMove,
+  onDelete,
+  isSelected,
+}) => {
   const handleDeleteClick = (e: React.MouseEvent) => {
     e.stopPropagation();
-    if (window.confirm(`Are you sure you want to delete the feed "${feedTitle}"?`)) {
+    if (
+      window.confirm(`Are you sure you want to delete the feed "${feedTitle}"?`)
+    ) {
       onDelete();
     }
   };
@@ -31,7 +38,7 @@ const FeedItemActionsComponent: React.FC<FeedItemActionsProps> = ({ feedTitle, o
         size="sm"
         className={`
           p-1.5 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 focus:opacity-100 transition-opacity duration-150
-          ${isSelected ? 'opacity-60 hover:opacity-100' : ''}
+          ${isSelected ? "opacity-60 hover:opacity-100" : ""}
         `}
         aria-label={`Move feed ${feedTitle} to folder`}
         title="Move to folder"
@@ -44,7 +51,7 @@ const FeedItemActionsComponent: React.FC<FeedItemActionsProps> = ({ feedTitle, o
         className={`
           p-1.5 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 focus:opacity-100 transition-opacity duration-150
           hover:text-red-600 dark:hover:text-red-400
-          ${isSelected ? 'opacity-60 hover:opacity-100' : ''}
+          ${isSelected ? "opacity-60 hover:opacity-100" : ""}
         `}
         aria-label={`Delete feed ${feedTitle}`}
         title="Delete feed"

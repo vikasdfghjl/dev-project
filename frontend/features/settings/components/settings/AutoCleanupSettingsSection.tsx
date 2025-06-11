@@ -1,32 +1,31 @@
-import React, { useState } from 'react';
-import { GearIcon } from '../../../shared/icons/GearIcon';
-import type { AppSettings, SettingsUpdate } from '../../../../types';
+import React, { useState } from "react";
+import { GearIcon } from "../../../shared/icons/GearIcon";
+import type { AppSettings, SettingsUpdate } from "../../../../types";
 
 interface AutoCleanupSettingsSectionProps {
   settings: AppSettings;
   onUpdateSettings: (settings: SettingsUpdate) => Promise<void>;
 }
 
-const AutoCleanupSettingsSectionComponent: React.FC<AutoCleanupSettingsSectionProps> = ({ 
-  settings, 
-  onUpdateSettings 
-}) => {
+const AutoCleanupSettingsSectionComponent: React.FC<
+  AutoCleanupSettingsSectionProps
+> = ({ settings, onUpdateSettings }) => {
   const [isUpdating, setIsUpdating] = useState<boolean>(false);
-  const [message, setMessage] = useState<string>('');
-  const [messageType, setMessageType] = useState<'success' | 'error' | ''>('');
+  const [message, setMessage] = useState<string>("");
+  const [messageType, setMessageType] = useState<"success" | "error" | "">("");
 
   const handleToggleAutoCleanup = async (enabled: boolean) => {
     setIsUpdating(true);
-    setMessage('');
-    setMessageType('');
-    
+    setMessage("");
+    setMessageType("");
+
     try {
       await onUpdateSettings({ auto_cleanup_enabled: enabled });
-      setMessage(enabled ? 'Auto cleanup enabled' : 'Auto cleanup disabled');
-      setMessageType('success');
+      setMessage(enabled ? "Auto cleanup enabled" : "Auto cleanup disabled");
+      setMessageType("success");
     } catch (err: any) {
-      setMessage(err.message || 'Failed to update auto cleanup setting');
-      setMessageType('error');
+      setMessage(err.message || "Failed to update auto cleanup setting");
+      setMessageType("error");
     } finally {
       setIsUpdating(false);
     }
@@ -34,18 +33,18 @@ const AutoCleanupSettingsSectionComponent: React.FC<AutoCleanupSettingsSectionPr
 
   const handleCleanupDaysChange = async (days: number) => {
     if (days === settings.auto_cleanup_days) return;
-    
+
     setIsUpdating(true);
-    setMessage('');
-    setMessageType('');
-    
+    setMessage("");
+    setMessageType("");
+
     try {
       await onUpdateSettings({ auto_cleanup_days: days });
       setMessage(`Auto cleanup period updated to ${days} days`);
-      setMessageType('success');
+      setMessageType("success");
     } catch (err: any) {
-      setMessage(err.message || 'Failed to update cleanup period');
-      setMessageType('error');
+      setMessage(err.message || "Failed to update cleanup period");
+      setMessageType("error");
     } finally {
       setIsUpdating(false);
     }
@@ -53,18 +52,18 @@ const AutoCleanupSettingsSectionComponent: React.FC<AutoCleanupSettingsSectionPr
 
   const handleRefreshIntervalChange = async (minutes: number) => {
     if (minutes === settings.refresh_interval_minutes) return;
-    
+
     setIsUpdating(true);
-    setMessage('');
-    setMessageType('');
-    
+    setMessage("");
+    setMessageType("");
+
     try {
       await onUpdateSettings({ refresh_interval_minutes: minutes });
       setMessage(`Refresh interval updated to ${minutes} minutes`);
-      setMessageType('success');
+      setMessageType("success");
     } catch (err: any) {
-      setMessage(err.message || 'Failed to update refresh interval');
-      setMessageType('error');
+      setMessage(err.message || "Failed to update refresh interval");
+      setMessageType("error");
     } finally {
       setIsUpdating(false);
     }
@@ -78,13 +77,15 @@ const AutoCleanupSettingsSectionComponent: React.FC<AutoCleanupSettingsSectionPr
           Application Settings
         </h3>
       </div>
-      
+
       {message && (
-        <div className={`p-3 rounded-lg text-sm mb-4 ${
-          messageType === 'success' 
-            ? 'bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-300 border border-green-200 dark:border-green-800' 
-            : 'bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-300 border border-red-200 dark:border-red-800'
-        }`}>
+        <div
+          className={`p-3 rounded-lg text-sm mb-4 ${
+            messageType === "success"
+              ? "bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-300 border border-green-200 dark:border-green-800"
+              : "bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-300 border border-red-200 dark:border-red-800"
+          }`}
+        >
           {message}
         </div>
       )}
@@ -93,7 +94,10 @@ const AutoCleanupSettingsSectionComponent: React.FC<AutoCleanupSettingsSectionPr
         {/* Auto Cleanup Toggle */}
         <div>
           <div className="flex items-center justify-between mb-2">
-            <label htmlFor="auto-cleanup-toggle" className="block text-sm font-medium text-foreground dark:text-slate-200">
+            <label
+              htmlFor="auto-cleanup-toggle"
+              className="block text-sm font-medium text-foreground dark:text-slate-200"
+            >
               Automatic Article Cleanup
             </label>
             <label className="relative inline-flex items-center cursor-pointer">
@@ -101,7 +105,7 @@ const AutoCleanupSettingsSectionComponent: React.FC<AutoCleanupSettingsSectionPr
                 id="auto-cleanup-toggle"
                 type="checkbox"
                 checked={settings.auto_cleanup_enabled}
-                onChange={(e) => handleToggleAutoCleanup(e.target.checked)}
+                onChange={e => handleToggleAutoCleanup(e.target.checked)}
                 disabled={isUpdating}
                 className="sr-only peer"
               />
@@ -114,14 +118,17 @@ const AutoCleanupSettingsSectionComponent: React.FC<AutoCleanupSettingsSectionPr
         </div>
 
         {/* Cleanup Period */}
-        <div className={settings.auto_cleanup_enabled ? '' : 'opacity-50'}>
-          <label htmlFor="cleanup-period" className="block text-sm font-medium text-muted-foreground dark:text-slate-300 mb-2">
+        <div className={settings.auto_cleanup_enabled ? "" : "opacity-50"}>
+          <label
+            htmlFor="cleanup-period"
+            className="block text-sm font-medium text-muted-foreground dark:text-slate-300 mb-2"
+          >
             Auto cleanup period:
           </label>
           <select
             id="cleanup-period"
             value={settings.auto_cleanup_days}
-            onChange={(e) => handleCleanupDaysChange(Number(e.target.value))}
+            onChange={e => handleCleanupDaysChange(Number(e.target.value))}
             disabled={isUpdating || !settings.auto_cleanup_enabled}
             className="w-full max-w-xs px-3 py-2 border border-border dark:border-slate-600 rounded-lg bg-background dark:bg-slate-700 text-foreground dark:text-slate-200 focus:ring-2 focus:ring-primary dark:focus:ring-primary-dark focus:border-primary dark:focus:border-primary-dark outline-none transition-all disabled:opacity-50 disabled:cursor-not-allowed"
           >
@@ -136,13 +143,16 @@ const AutoCleanupSettingsSectionComponent: React.FC<AutoCleanupSettingsSectionPr
 
         {/* Refresh Interval */}
         <div>
-          <label htmlFor="refresh-interval" className="block text-sm font-medium text-muted-foreground dark:text-slate-300 mb-2">
+          <label
+            htmlFor="refresh-interval"
+            className="block text-sm font-medium text-muted-foreground dark:text-slate-300 mb-2"
+          >
             Feed refresh interval:
           </label>
           <select
             id="refresh-interval"
             value={settings.refresh_interval_minutes}
-            onChange={(e) => handleRefreshIntervalChange(Number(e.target.value))}
+            onChange={e => handleRefreshIntervalChange(Number(e.target.value))}
             disabled={isUpdating}
             className="w-full max-w-xs px-3 py-2 border border-border dark:border-slate-600 rounded-lg bg-background dark:bg-slate-700 text-foreground dark:text-slate-200 focus:ring-2 focus:ring-primary dark:focus:ring-primary-dark focus:border-primary dark:focus:border-primary-dark outline-none transition-all disabled:opacity-50 disabled:cursor-not-allowed"
           >
@@ -161,4 +171,6 @@ const AutoCleanupSettingsSectionComponent: React.FC<AutoCleanupSettingsSectionPr
   );
 };
 
-export const AutoCleanupSettingsSection = React.memo(AutoCleanupSettingsSectionComponent);
+export const AutoCleanupSettingsSection = React.memo(
+  AutoCleanupSettingsSectionComponent
+);

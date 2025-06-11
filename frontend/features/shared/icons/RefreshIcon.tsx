@@ -1,6 +1,8 @@
-import React from 'react';
+import React from "react";
 
-export const RefreshIcon: React.FC<{ className?: string }> = ({ className = '' }) => (
+export const RefreshIcon: React.FC<{ className?: string }> = ({
+  className = "",
+}) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
     fill="none"

@@ -36,12 +36,140 @@ backend/app/tests/__pycache__/
 frontend/node_modules/
 frontend/dist/
 frontend/.env
+frontend/.env.local
+frontend/.vite/
+frontend/coverage/
+frontend/.nyc_output/
 
-#docker-compose
+# Root level node_modules (if any)
+node_modules/
+
+# Docker & Compose
 ./rss.env
+rss.env
+
+# Monitoring
+monitoring/data/
+monitoring/prometheus_data/
+monitoring/grafana_data/
+monitoring/logs/
+prometheus_data/
+grafana_data/
+
+# Pre-commit
+.pre-commit-cache/
+.pre-commit-config.yaml.backup
+
+# Security scanning
+.secrets.baseline.new
+bandit-report.txt
+safety-report.txt
+
+# Linting and formatting
+.flake8.cache
+.black.cache
+.isort.cache
+.prettier-cache/
+.eslintcache
+prettier-config.json
+.prettiercache
+
+# Type checking
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
 # Logs
 *.log
+logs/
+app.log
+access.log
+error.log
 
-# Misc
+# Database
 *.sqlite3
 *.db
+test.db
+*.db-journal
+*.db-wal
+*.db-shm
+
+# Temporary files
+*.tmp
+*.temp
+*~
+*.bak
+*.orig
+
+# IDE files
+.idea/
+*.swp
+*.swo
+.project
+.pydevproject
+.settings/
+*.sublime-*
+
+# Coverage reports
+htmlcov/
+.coverage
+.coverage.*
+coverage.xml
+*.cover
+.hypothesis/
+
+# Testing
+.pytest_cache/
+.tox/
+.nox/
+test-results/
+test-reports/
+
+# Jupyter Notebooks
+.ipynb_checkpoints/
+
+# Documentation (generated files)
+*_SUCCESS.md.backup
+*.md.bak
+
+# Docker volumes (if using local volumes)
+docker-volumes/
+
+# OS specific
+*.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+Icon?
+ehthumbs.db
+Thumbs.db
+desktop.ini
+$RECYCLE.BIN/
+
+# PowerShell
+*.ps1.backup
+
+# Editor configurations
+.editorconfig.backup
+
+# Package manager lock files (keep these commented - they should usually be committed)
+# package-lock.json
+# yarn.lock
+# pnpm-lock.yaml
+
+# Runtime data
+pids/
+*.pid
+*.seed
+*.pid.lock
+
+# Build artifacts
+*.tgz
+*.tar.gz
+*.zip
+*.rar
+
+# Local environment files
+.env.backup
+.env.*.local
