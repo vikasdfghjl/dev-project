@@ -146,7 +146,6 @@ const SidebarComponent: React.FC<SidebarProps> = ({
         onToggleCollapse={onToggleCollapse}
         onAddFeedClick={onAddFeedClick}
         onOpenSettingsClick={onOpenSettingsClick}
-        onOpenDocsClick={onOpenDocsClick}
       />
     </aside>
   );

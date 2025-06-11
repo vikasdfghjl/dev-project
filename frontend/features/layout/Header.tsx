@@ -1,5 +1,11 @@
 import React, { useState } from "react";
-import { PlusIcon, RssIcon, RefreshIcon, BookIcon, Button } from "../shared";
+import {
+  PlusIcon,
+  RssIcon,
+  RefreshIcon,
+  DocumentIcon,
+  Button,
+} from "../shared";
 
 interface HeaderProps {
   onAddFeedClick: () => void;
@@ -38,7 +44,7 @@ const HeaderComponent: React.FC<HeaderProps> = ({
             variant="ghost"
             size="md"
             title="Documentation"
-            leftIcon={<BookIcon className="h-5 w-5" />}
+            leftIcon={<DocumentIcon className="h-5 w-5" />}
             aria-label="Open FluxReader documentation"
           >
             Docs

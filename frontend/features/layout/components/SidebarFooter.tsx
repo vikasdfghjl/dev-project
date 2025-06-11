@@ -2,7 +2,6 @@ import React from "react";
 import {
   PlusIcon,
   GearIcon,
-  BookIcon,
   ChevronDoubleLeftIcon,
   ChevronDoubleRightIcon,
   Button,
@@ -13,7 +12,6 @@ interface SidebarFooterProps {
   onToggleCollapse: () => void;
   onAddFeedClick: () => void;
   onOpenSettingsClick: () => void;
-  onOpenDocsClick: () => void; // New documentation handler
 }
 
 const SidebarFooterComponent: React.FC<SidebarFooterProps> = ({
@@ -21,7 +19,6 @@ const SidebarFooterComponent: React.FC<SidebarFooterProps> = ({
   onToggleCollapse,
   onAddFeedClick,
   onOpenSettingsClick,
-  onOpenDocsClick,
 }) => {
   return (
     <div
@@ -55,15 +52,6 @@ const SidebarFooterComponent: React.FC<SidebarFooterProps> = ({
       >
         {!isCollapsed && "Add Feed"}
       </Button>{" "}
-      <Button
-        onClick={onOpenDocsClick}
-        variant="ghost"
-        size="md"
-        className={`${isCollapsed ? "w-full" : ""}`}
-        title="Documentation"
-        aria-label="Open FluxReader documentation"
-        leftIcon={<BookIcon className="h-5 w-5" />}
-      />
       <Button
         onClick={onOpenSettingsClick}
         variant="ghost"

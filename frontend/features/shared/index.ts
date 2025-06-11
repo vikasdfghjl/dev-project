@@ -6,7 +6,7 @@ export { Modal } from "./components/Modal";
 export * from "./ui";
 
 // Icons - individual exports for better compatibility
-export { BookIcon } from "./icons/BookIcon";
+export { DocumentIcon } from "./icons/DocumentIcon";
 export { BookOpenIcon } from "./icons/BookOpenIcon";
 export { CardViewIcon } from "./icons/CardViewIcon";
 export { ChevronDoubleLeftIcon } from "./icons/ChevronDoubleLeftIcon";
