@@ -2,7 +2,7 @@ import React from "react";
 import {
   PlusIcon,
   GearIcon,
-  BookOpenIcon,
+  BookIcon,
   ChevronDoubleLeftIcon,
   ChevronDoubleRightIcon,
   Button,
@@ -62,7 +62,7 @@ const SidebarFooterComponent: React.FC<SidebarFooterProps> = ({
         className={`${isCollapsed ? "w-full" : ""}`}
         title="Documentation"
         aria-label="Open FluxReader documentation"
-        leftIcon={<BookOpenIcon className="h-5 w-5" />}
+        leftIcon={<BookIcon className="h-5 w-5" />}
       />
       <Button
         onClick={onOpenSettingsClick}
