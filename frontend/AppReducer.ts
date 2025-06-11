@@ -20,6 +20,7 @@ export const initialState: AppState = {
     moveFeed: null,
   },
   isSettingsViewOpen: false,
+  isDocsViewOpen: false, // Initialize documentation view as closed
   isSidebarCollapsed: false,
   articleSortOption: "date-desc",
   articleFilterOption: "all",
@@ -251,17 +252,26 @@ export const appReducer = (state: AppState, action: AppAction): AppState => {
         modalState: { ...state.modalState, [modalName]: false },
       };
     }
-
     case "TOGGLE_SETTINGS_VIEW":
       return {
         ...state,
         isSettingsViewOpen: !state.isSettingsViewOpen,
+        isDocsViewOpen: false, // Close docs when opening settings
         selectedArticle: !state.isSettingsViewOpen
           ? null
           : state.selectedArticle, // Clear article if opening settings
       };
     case "CLOSE_SETTINGS_VIEW":
       return { ...state, isSettingsViewOpen: false };
+    case "TOGGLE_DOCS_VIEW":
+      return {
+        ...state,
+        isDocsViewOpen: !state.isDocsViewOpen,
+        isSettingsViewOpen: false, // Close settings when opening docs
+        selectedArticle: !state.isDocsViewOpen ? null : state.selectedArticle, // Clear article if opening docs
+      };
+    case "CLOSE_DOCS_VIEW":
+      return { ...state, isDocsViewOpen: false };
     case "TOGGLE_SIDEBAR":
       return { ...state, isSidebarCollapsed: !state.isSidebarCollapsed };
     case "SET_ARTICLE_SORT_OPTION":

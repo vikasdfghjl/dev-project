@@ -25,6 +25,7 @@ interface SidebarProps {
   onDeleteFolder: (folderId: string) => void;
   onMoveFeed: (feed: Feed) => void;
   onOpenSettingsClick: () => void;
+  onOpenDocsClick: () => void; // New documentation handler
   isCollapsed: boolean;
   onToggleCollapse: () => void;
 }
@@ -43,6 +44,7 @@ const SidebarComponent: React.FC<SidebarProps> = ({
   onDeleteFolder,
   onMoveFeed,
   onOpenSettingsClick,
+  onOpenDocsClick,
   isCollapsed,
   onToggleCollapse,
 }) => {
@@ -56,7 +58,6 @@ const SidebarComponent: React.FC<SidebarProps> = ({
         isCollapsed={isCollapsed}
         onAddFolderClick={onAddFolderClick}
       />
-
       {isLoading ? (
         <div className="flex-1 flex items-center justify-center p-4">
           <LoadingSpinner />
@@ -140,12 +141,13 @@ const SidebarComponent: React.FC<SidebarProps> = ({
               />
             )}
         </div>
-      )}
+      )}{" "}
       <SidebarFooter
         isCollapsed={isCollapsed}
         onToggleCollapse={onToggleCollapse}
         onAddFeedClick={onAddFeedClick}
         onOpenSettingsClick={onOpenSettingsClick}
+        onOpenDocsClick={onOpenDocsClick}
       />
     </aside>
   );
