@@ -25,26 +25,25 @@ services:
     networks:
       - fluxreader-network
     depends_on:
-      - postgres
-    volumes:
+      - postgres    volumes:
       - ./backend:/app
       - /app/.venv
-      - /app/__pycache__
-
-  frontend:
+      - /app/__pycache__  frontend:
     build:
       context: ./frontend
       dockerfile: Dockerfile
+      args:
+        VITE_API_URL: ${VITE_API_URL}
     container_name: fluxreader-frontend
     restart: unless-stopped
+    env_file:
+      - ./rss.env
     ports:
       - "3000:80"
     networks:
       - fluxreader-network
     depends_on:
       - backend
-    env_file:
-      - ./rss.env
 
 # Networks
 networks:
