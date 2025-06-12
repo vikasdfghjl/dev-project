@@ -14,6 +14,7 @@ import type {
 class RssApiService extends BaseApiService {
   constructor() {
     const apiUrl = import.meta.env.VITE_API_URL;
+    console.log(`🔧 RssApiService initialized with API URL: ${apiUrl}`);
     super(apiUrl);
   }
 
