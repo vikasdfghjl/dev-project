@@ -13,7 +13,9 @@ import type {
  */
 class RssApiService extends BaseApiService {
   constructor() {
-    super("http://localhost:8000/api/v1");
+    const apiUrl =
+      import.meta.env.VITE_API_URL || "http://localhost:8000/api/v1";
+    super(apiUrl);
   }
 
   /**

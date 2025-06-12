@@ -1,4 +1,5 @@
 import logging
+import os
 import time
 
 from app.api.v1.api import router as api_v1_router
@@ -33,9 +34,12 @@ app = FastAPI(
     version="1.0.0",
 )
 
+# CORS configuration - get allowed origins from environment
+ALLOWED_ORIGINS = os.getenv("ALLOWED_ORIGINS", "http://localhost:3000").split(",")
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],  # Only allow frontend
+    allow_origins=ALLOWED_ORIGINS,  # Allow configurable origins
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
